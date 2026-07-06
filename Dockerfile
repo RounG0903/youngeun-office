@@ -7,22 +7,24 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm ci
+# Railway injects NODE_ENV=production during build; devDeps are required for prisma/tailwind/typescript.
+RUN npm ci --include=dev
 
 COPY . .
 
-ENV NODE_ENV=production
 ENV DATABASE_URL="file:/data/dev.db"
 RUN npx prisma generate && npm run build
 
-RUN mkdir -p /data
+ENV NODE_ENV=production
+
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh \
+  && chmod +x /app/docker-entrypoint.sh \
+  && mkdir -p /data
+
 VOLUME ["/data"]
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
