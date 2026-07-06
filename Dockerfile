@@ -21,8 +21,6 @@ RUN sed -i 's/\r$//' /app/docker-entrypoint.sh \
   && chmod +x /app/docker-entrypoint.sh \
   && mkdir -p /data
 
-VOLUME ["/data"]
-
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
