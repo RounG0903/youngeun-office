@@ -32,7 +32,7 @@ export function UserNav({ userName }: UserNavProps) {
       {open ? (
         <nav
           id="user-nav-menu"
-          className="absolute right-0 z-50 mt-2 min-w-[12rem] overflow-hidden rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,12rem)] overflow-hidden rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg"
         >
           <Link
             href="/reservations/new"

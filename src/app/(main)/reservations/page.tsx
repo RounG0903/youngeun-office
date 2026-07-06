@@ -46,8 +46,8 @@ export default function ReservationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">내 예약</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">
             다가오는 예약입니다. 전체 기록은{" "}
@@ -57,7 +57,7 @@ export default function ReservationsPage() {
             에서 확인하세요.
           </p>
         </div>
-        <Link href="/reservations/new" className="btn btn-primary">
+        <Link href="/reservations/new" className="btn btn-primary w-full shrink-0 sm:w-auto">
           새 예약
         </Link>
       </div>

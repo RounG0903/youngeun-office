@@ -73,7 +73,7 @@ export default function FindAccountPage() {
         <form onSubmit={handleLookup} className="mt-6 space-y-4">
           <div className="field">
             <label htmlFor="phone">휴대폰 번호</label>
-            <div className="flex gap-2">
+            <div className="input-action-row">
               <input
                 id="phone"
                 value={phone}
@@ -83,7 +83,7 @@ export default function FindAccountPage() {
               />
               <button
                 type="button"
-                className="btn btn-secondary shrink-0 px-3"
+                className="btn btn-secondary text-sm"
                 onClick={handleSendSms}
                 disabled={smsLoading || !phone}
               >

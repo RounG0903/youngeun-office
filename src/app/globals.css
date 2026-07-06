@@ -19,6 +19,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   background: linear-gradient(180deg, #eff6ff 0%, var(--background) 240px);
   color: var(--foreground);
   font-family:
@@ -59,6 +60,10 @@ textarea {
   padding: 0.7rem 1rem;
   font-weight: 600;
   cursor: pointer;
+  max-width: 100%;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -113,6 +118,41 @@ textarea {
   border-radius: 10px;
   padding: 0.75rem 0.85rem;
   background: white;
+  width: 100%;
+  min-width: 0;
+}
+
+.input-action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.input-action-row > input {
+  width: 100%;
+  min-width: 0;
+}
+
+.input-action-row > .btn {
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .input-action-row {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .input-action-row > input {
+    flex: 1;
+    width: auto;
+  }
+
+  .input-action-row > .btn {
+    width: auto;
+    flex-shrink: 0;
+  }
 }
 
 .field input:focus,
@@ -324,4 +364,17 @@ textarea {
   color: var(--muted);
   font-size: 0.9rem;
   text-align: center;
+}
+
+@media (max-width: 639px) {
+  .card.p-8,
+  .card.p-6,
+  .card.p-5 {
+    padding: 1.25rem;
+  }
+
+  .btn {
+    font-size: 0.875rem;
+    padding: 0.65rem 0.85rem;
+  }
 }

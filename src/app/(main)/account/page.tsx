@@ -210,10 +210,10 @@ export default function AccountPage() {
               {maskedPhone ? ` (${maskedPhone})` : ""}
             </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4">
               <button
                 type="button"
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary w-full text-sm sm:w-auto"
                 onClick={handleSendSms}
                 disabled={smsLoading}
               >
@@ -221,8 +221,8 @@ export default function AccountPage() {
               </button>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-end gap-2">
-              <div className="field min-w-[10rem] flex-1">
+            <div className="mt-4 space-y-2">
+              <div className="field">
                 <label htmlFor="verify-code">인증번호 (6자리)</label>
                 <input
                   id="verify-code"
@@ -234,7 +234,7 @@ export default function AccountPage() {
               </div>
               <button
                 type="button"
-                className="btn btn-primary text-sm"
+                className="btn btn-primary w-full text-sm sm:w-auto"
                 onClick={handleVerifySms}
                 disabled={verifyLoading || code.length !== 6}
               >
