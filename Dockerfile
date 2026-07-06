@@ -7,8 +7,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-# Railway injects NODE_ENV=production during build; devDeps are required for prisma/tailwind/typescript.
-RUN npm ci --include=dev
+# Skip postinstall (prisma generate); schema is copied later and generate runs in build step.
+RUN npm ci --include=dev --ignore-scripts
 
 COPY . .
 
