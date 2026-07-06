@@ -69,10 +69,20 @@ DB 파일이 재배포 후에도 유지되려면 **볼륨**이 필요합니다.
 [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-SMS를 쓸 경우 (선택):
+SMS를 쓸 경우 (Solapi 권장):
 
 | 변수 | 값 |
 |------|-----|
+| `SMS_PROVIDER` | `solapi` |
+| `SMS_API_KEY` | Solapi API Key |
+| `SMS_API_SECRET` | Solapi API Secret |
+| `SMS_FROM` | 사전 등록된 발신번호 (예: `0212345678`) |
+
+자체 HTTP SMS API를 쓸 경우:
+
+| 변수 | 값 |
+|------|-----|
+| `SMS_PROVIDER` | `http` |
 | `SMS_API_URL` | 문자 API URL |
 | `SMS_API_KEY` | API 키 |
 
