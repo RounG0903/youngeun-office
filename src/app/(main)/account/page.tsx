@@ -83,7 +83,8 @@ export default function AccountPage() {
     }
 
     setPhoneVerified(true);
-    setSmsMessage("휴대폰 인증이 완료되었습니다.");
+    setSmsMessage("");
+    setMessage("휴대폰 인증이 완료되었습니다. PIN 변경 또는 회원 탈퇴를 진행할 수 있습니다.");
   }
 
   async function handleProfileSubmit(event: FormEvent) {
@@ -113,11 +114,6 @@ export default function AccountPage() {
     event.preventDefault();
     setMessage("");
     setError("");
-
-    if (!phoneVerified) {
-      setError("PIN 변경 전 휴대폰 문자 인증을 완료해 주세요.");
-      return;
-    }
 
     if (newPin !== confirmPin) {
       setError("새 PIN 확인이 일치하지 않습니다.");
@@ -149,11 +145,6 @@ export default function AccountPage() {
     setMessage("");
     setError("");
 
-    if (!phoneVerified) {
-      setError("탈퇴 전 휴대폰 문자 인증을 완료해 주세요.");
-      return;
-    }
-
     if (!window.confirm("정말 탈퇴하시겠습니까? 예약 기록과 계정 정보가 삭제됩니다.")) {
       return;
     }
@@ -181,51 +172,10 @@ export default function AccountPage() {
       <div className="card p-8">
         <h1 className="text-2xl font-bold">계정 설정</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          닉네임 변경, PIN 변경, 회원 탈퇴를 관리합니다.
+          {phoneVerified
+            ? "PIN 변경 또는 회원 탈퇴를 진행할 수 있습니다."
+            : "휴대폰 인증 후 PIN 변경 및 회원 탈퇴가 가능합니다."}
         </p>
-
-        <section className="mt-6 rounded-xl border border-[var(--border)] p-4">
-          <h2 className="font-semibold">휴대폰 인증</h2>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            PIN 변경 및 회원 탈퇴에 필요합니다.
-            {maskedPhone ? ` (${maskedPhone})` : ""}
-          </p>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="btn btn-secondary text-sm"
-              onClick={handleSendSms}
-              disabled={smsLoading}
-            >
-              {smsLoading ? "발송 중..." : "인증번호 발송"}
-            </button>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-end gap-2">
-            <div className="field min-w-[10rem] flex-1">
-              <label htmlFor="verify-code">인증번호 (6자리)</label>
-              <input
-                id="verify-code"
-                inputMode="numeric"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                disabled={phoneVerified}
-              />
-            </div>
-            <button
-              type="button"
-              className="btn btn-primary text-sm"
-              onClick={handleVerifySms}
-              disabled={verifyLoading || phoneVerified || code.length !== 6}
-            >
-              {phoneVerified ? "인증 완료" : verifyLoading ? "확인 중..." : "인증 확인"}
-            </button>
-          </div>
-
-          {smsMessage ? <div className="mt-3 text-sm text-[var(--muted)]">{smsMessage}</div> : null}
-        </section>
 
         {message ? <div className="alert alert-success mt-4">{message}</div> : null}
         {error ? <div className="alert alert-error mt-4">{error}</div> : null}
@@ -251,79 +201,122 @@ export default function AccountPage() {
         </form>
       </div>
 
-      <div className="card p-8">
-        <h2 className="text-lg font-bold">PIN 변경</h2>
-        <p className="mt-1 text-sm text-[var(--muted)]">휴대폰 인증 후 변경할 수 있습니다.</p>
-        <form onSubmit={handlePinSubmit} className="mt-4 space-y-4">
-          <div className="field">
-            <label htmlFor="current-pin">현재 PIN</label>
-            <input
-              id="current-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={currentPin}
-              onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              required
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="new-pin">새 PIN</label>
-            <input
-              id="new-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={newPin}
-              onChange={(e) => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              required
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="confirm-pin">새 PIN 확인</label>
-            <input
-              id="confirm-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={confirmPin}
-              onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary" disabled={loadingPin || !phoneVerified}>
-            {loadingPin ? "변경 중..." : "PIN 변경"}
-          </button>
-        </form>
-      </div>
+      {!phoneVerified ? (
+        <div className="card p-8">
+          <section className="rounded-xl border border-[var(--border)] p-4">
+            <h2 className="font-semibold">휴대폰 인증</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              PIN 변경 및 회원 탈퇴를 위해 휴대폰 인증이 필요합니다.
+              {maskedPhone ? ` (${maskedPhone})` : ""}
+            </p>
 
-      <div className="card border-red-200 p-8">
-        <h2 className="text-lg font-bold text-red-700">회원 탈퇴</h2>
-        <p className="mt-1 text-sm text-[var(--muted)]">
-          탈퇴 시 예약 기록과 계정 정보가 삭제됩니다. 휴대폰 인증과 PIN 확인이 필요합니다.
-        </p>
-        <form onSubmit={handleDeleteSubmit} className="mt-4 space-y-4">
-          <div className="field">
-            <label htmlFor="delete-pin">현재 PIN</label>
-            <input
-              id="delete-pin"
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={deletePin}
-              onChange={(e) => setDeletePin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              required
-            />
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn btn-secondary text-sm"
+                onClick={handleSendSms}
+                disabled={smsLoading}
+              >
+                {smsLoading ? "발송 중..." : "인증번호 발송"}
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-end gap-2">
+              <div className="field min-w-[10rem] flex-1">
+                <label htmlFor="verify-code">인증번호 (6자리)</label>
+                <input
+                  id="verify-code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary text-sm"
+                onClick={handleVerifySms}
+                disabled={verifyLoading || code.length !== 6}
+              >
+                {verifyLoading ? "확인 중..." : "인증 확인"}
+              </button>
+            </div>
+
+            {smsMessage ? <div className="mt-3 text-sm text-[var(--muted)]">{smsMessage}</div> : null}
+          </section>
+        </div>
+      ) : (
+        <>
+          <div className="card p-8">
+            <h2 className="text-lg font-bold">PIN 변경</h2>
+            <form onSubmit={handlePinSubmit} className="mt-4 space-y-4">
+              <div className="field">
+                <label htmlFor="current-pin">현재 PIN</label>
+                <input
+                  id="current-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={currentPin}
+                  onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  required
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="new-pin">새 PIN</label>
+                <input
+                  id="new-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  required
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="confirm-pin">새 PIN 확인</label>
+                <input
+                  id="confirm-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={confirmPin}
+                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary" disabled={loadingPin}>
+                {loadingPin ? "변경 중..." : "PIN 변경"}
+              </button>
+            </form>
           </div>
-          <button
-            type="submit"
-            className="btn btn-danger"
-            disabled={loadingDelete || !phoneVerified}
-          >
-            {loadingDelete ? "처리 중..." : "회원 탈퇴"}
-          </button>
-        </form>
-      </div>
+
+          <div className="card border-red-200 p-8">
+            <h2 className="text-lg font-bold text-red-700">회원 탈퇴</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              탈퇴 시 예약 기록과 계정 정보가 삭제됩니다.
+            </p>
+            <form onSubmit={handleDeleteSubmit} className="mt-4 space-y-4">
+              <div className="field">
+                <label htmlFor="delete-pin">현재 PIN</label>
+                <input
+                  id="delete-pin"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={deletePin}
+                  onChange={(e) => setDeletePin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-danger" disabled={loadingDelete}>
+                {loadingDelete ? "처리 중..." : "회원 탈퇴"}
+              </button>
+            </form>
+          </div>
+        </>
+      )}
 
       <p className="text-center text-sm">
         <Link href="/reservations" className="text-[var(--primary)]">
