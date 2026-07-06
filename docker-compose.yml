@@ -1,0 +1,17 @@
+services:
+  youngeun-office:
+    build: .
+    container_name: youngeun-office
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: file:/data/dev.db
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      SMS_API_URL: ${SMS_API_URL:-}
+      SMS_API_KEY: ${SMS_API_KEY:-}
+    volumes:
+      - youngeun_data:/data
+
+volumes:
+  youngeun_data:

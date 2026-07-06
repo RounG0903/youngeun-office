@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: youngeun-office
+    runtime: docker
+    plan: starter
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:/data/dev.db
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: SMS_API_URL
+        sync: false
+      - key: SMS_API_KEY
+        sync: false
+    disk:
+      name: youngeun-data
+      mountPath: /data
+      sizeGB: 1

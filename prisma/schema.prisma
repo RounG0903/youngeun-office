@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  TABLET
+  ADMIN
+}
+
+model SystemConfig {
+  id                   String  @id @default("default")
+  tabletCheckinEnabled Boolean @default(true)
+}
+
+model User {
+  id               String        @id @default(cuid())
+  name             String        @unique
+  phone            String?       @unique
+  pinHash          String
+  pinPlain         String?
+  role             UserRole      @default(USER)
+  roomId           String?       @unique
+  room             MeetingRoom?  @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  checkinRequired  Boolean       @default(true)
+  penaltyUntil     DateTime?
+  reservations     Reservation[]
+  createdAt        DateTime      @default(now())
+}
+
+model PhoneVerification {
+  id         String    @id @default(cuid())
+  phone      String
+  code       String
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+
+  @@index([phone, verified])
+}
+
+model MeetingRoom {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  reservations Reservation[]
+  tabletUser   User?
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model Reservation {
+  id              String            @id @default(cuid())
+  title           String
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId          String
+  room            MeetingRoom       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startTime       DateTime
+  endTime         DateTime
+  checkedInAt     DateTime?
+  status          ReservationStatus @default(ACTIVE)
+  cancelledAt     DateTime?
+  noShowProcessed Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+
+  @@index([roomId, startTime, endTime])
+  @@index([userId, startTime])
+  @@index([status, endTime])
+}

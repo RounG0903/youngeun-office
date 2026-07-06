@@ -1,0 +1,92 @@
+.tablet-body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0f172a;
+  color: #f8fafc;
+  font-family:
+    "Pretendard",
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    system-ui,
+    sans-serif;
+}
+
+.tablet-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.tablet-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 720px;
+  width: 100%;
+}
+
+.tablet-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.tablet-subtitle {
+  margin-top: 0.5rem;
+  color: #94a3b8;
+}
+
+.tablet-qr {
+  margin: 2rem auto 0;
+  background: white;
+  padding: 1rem;
+  border-radius: 16px;
+  display: inline-block;
+}
+
+.tablet-nav {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tablet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #475569;
+  background: #334155;
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.tablet-btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.tablet-select {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.tablet-info {
+  margin-top: 1.5rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
