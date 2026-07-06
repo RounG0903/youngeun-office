@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { addPenaltyDays } from "@/lib/reservation";
-import { isTabletCheckinEnabled } from "@/lib/settings";
+import { isRoomCheckinEnabled, isTabletCheckinEnabled } from "@/lib/settings";
 
 async function isPenaltyEligibleUser(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -10,8 +10,11 @@ async function isPenaltyEligibleUser(userId: string): Promise<boolean> {
   return user?.role === "USER";
 }
 
-async function shouldApplyNoShowPenalty(userId: string): Promise<boolean> {
-  if (!(await isTabletCheckinEnabled())) {
+async function shouldApplyNoShowPenalty(
+  userId: string,
+  roomId: string,
+): Promise<boolean> {
+  if (!(await isRoomCheckinEnabled(roomId))) {
     return false;
   }
 
@@ -55,12 +58,16 @@ export async function processNoShowPenalties(userId?: string) {
     select: {
       id: true,
       userId: true,
+      roomId: true,
       user: { select: { checkinRequired: true } },
     },
   });
 
   for (const reservation of missed) {
-    if (!globalCheckinEnabled || !reservation.user.checkinRequired) {
+    const roomCheckinEnabled =
+      globalCheckinEnabled && (await isRoomCheckinEnabled(reservation.roomId));
+
+    if (!roomCheckinEnabled || !reservation.user.checkinRequired) {
       await prisma.reservation.update({
         where: { id: reservation.id },
         data: { status: "COMPLETED", noShowProcessed: true },
@@ -68,7 +75,7 @@ export async function processNoShowPenalties(userId?: string) {
       continue;
     }
 
-    if (!(await shouldApplyNoShowPenalty(reservation.userId))) {
+    if (!(await shouldApplyNoShowPenalty(reservation.userId, reservation.roomId))) {
       await prisma.reservation.update({
         where: { id: reservation.id },
         data: { status: "NO_SHOW", noShowProcessed: true },

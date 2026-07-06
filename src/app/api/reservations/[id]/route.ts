@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { canCancelReservation } from "@/lib/reservation";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 import { requireUserSession } from "@/lib/admin";
-import { isTabletCheckinEnabled } from "@/lib/settings";
+import { isRoomCheckinEnabled } from "@/lib/settings";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -33,7 +33,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const now = new Date();
   const canCancel =
     reservation.status === "ACTIVE" && canCancelReservation(reservation.startTime, now);
-  const tabletCheckinEnabled = await isTabletCheckinEnabled();
+  const tabletCheckinEnabled = await isRoomCheckinEnabled(reservation.roomId);
 
   return NextResponse.json({
     reservation: {

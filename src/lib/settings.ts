@@ -17,6 +17,21 @@ export async function isTabletCheckinEnabled(): Promise<boolean> {
   return config.tabletCheckinEnabled;
 }
 
+export async function roomHasTabletAccount(roomId: string): Promise<boolean> {
+  const tablet = await prisma.user.findFirst({
+    where: { roomId, role: "TABLET" },
+    select: { id: true },
+  });
+  return Boolean(tablet);
+}
+
+export async function isRoomCheckinEnabled(roomId: string): Promise<boolean> {
+  if (!(await isTabletCheckinEnabled())) {
+    return false;
+  }
+  return roomHasTabletAccount(roomId);
+}
+
 export async function setTabletCheckinEnabled(enabled: boolean) {
   return prisma.systemConfig.upsert({
     where: { id: CONFIG_ID },

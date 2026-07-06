@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireTabletSession } from "@/lib/admin";
-import { isTabletCheckinEnabled } from "@/lib/settings";
+import { isRoomCheckinEnabled } from "@/lib/settings";
 
 export async function GET() {
   const auth = await requireTabletSession();
@@ -16,7 +16,9 @@ export async function GET() {
     return NextResponse.json({ error: "태블릿 계정을 찾을 수 없습니다." }, { status: 404 });
   }
 
-  const tabletCheckinEnabled = await isTabletCheckinEnabled();
+  const tabletCheckinEnabled = tabletUser.roomId
+    ? await isRoomCheckinEnabled(tabletUser.roomId)
+    : false;
 
   return NextResponse.json({
     name: tabletUser.name,

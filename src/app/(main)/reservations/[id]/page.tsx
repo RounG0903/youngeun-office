@@ -126,7 +126,7 @@ export default function ReservationDetailPage() {
           </p>
         ) : reservation.status === "ACTIVE" ? (
           <p className="mt-5 text-sm text-[var(--muted)]">
-            현재 체크인 없이 예약을 이용할 수 있습니다.
+            이 회의실은 체크인이 필요하지 않습니다. (태블릿 미등록 또는 체크인 비활성화)
           </p>
         ) : null}
 

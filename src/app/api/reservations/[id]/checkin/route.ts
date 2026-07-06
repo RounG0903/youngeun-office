@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCheckinToken } from "@/lib/session";
 import { requireUserSession } from "@/lib/admin";
-import { isTabletCheckinEnabled } from "@/lib/settings";
+import { isRoomCheckinEnabled } from "@/lib/settings";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -12,10 +12,6 @@ export async function POST(request: Request, context: RouteContext) {
   const auth = await requireUserSession();
   if (auth.error) return auth.error;
   const session = auth.session!;
-
-  if (!(await isTabletCheckinEnabled())) {
-    return NextResponse.json({ error: "현재 체크인 기능이 비활성화되어 있습니다." }, { status: 403 });
-  }
 
   const { id } = await context.params;
   const body = await request.json().catch(() => ({}));
@@ -32,6 +28,13 @@ export async function POST(request: Request, context: RouteContext) {
 
   if (!reservation) {
     return NextResponse.json({ error: "예약을 찾을 수 없습니다." }, { status: 404 });
+  }
+
+  if (!(await isRoomCheckinEnabled(reservation.roomId))) {
+    return NextResponse.json(
+      { error: "이 회의실은 태블릿 계정이 없어 체크인할 수 없습니다." },
+      { status: 403 },
+    );
   }
 
   if (reservation.userId !== session.id) {

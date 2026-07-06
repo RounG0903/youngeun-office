@@ -1,21 +1,29 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin";
+import { isTabletCheckinEnabled } from "@/lib/settings";
 
 export async function GET() {
   const auth = await requireAdminSession();
   if (auth.error) return auth.error;
 
   const rooms = await prisma.meetingRoom.findMany({
-    include: { _count: { select: { reservations: true } } },
+    include: {
+      _count: { select: { reservations: true } },
+      tabletUser: { select: { id: true } },
+    },
     orderBy: { name: "asc" },
   });
+
+  const globalCheckinEnabled = await isTabletCheckinEnabled();
 
   return NextResponse.json({
     rooms: rooms.map((room) => ({
       id: room.id,
       name: room.name,
       reservationCount: room._count.reservations,
+      hasTabletAccount: Boolean(room.tabletUser),
+      checkinEnabled: globalCheckinEnabled && Boolean(room.tabletUser),
     })),
   });
 }

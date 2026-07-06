@@ -6,6 +6,8 @@ type Room = {
   id: string;
   name: string;
   reservationCount: number;
+  hasTabletAccount: boolean;
+  checkinEnabled: boolean;
 };
 
 export default function AdminRoomsPage() {
@@ -90,7 +92,10 @@ export default function AdminRoomsPage() {
           <li key={room.id} className="flex items-center justify-between py-3">
             <div>
               <div className="font-medium">{room.name}</div>
-              <div className="text-sm text-[var(--muted)]">예약 {room.reservationCount}건</div>
+              <div className="text-sm text-[var(--muted)]">
+                예약 {room.reservationCount}건 · 체크인{" "}
+                {room.checkinEnabled ? "활성" : room.hasTabletAccount ? "비활성" : "태블릿 없음"}
+              </div>
             </div>
             <button
               type="button"

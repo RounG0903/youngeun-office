@@ -4,20 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { getCheckinUrl } from "@/lib/session";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 import { requireTabletSession } from "@/lib/admin";
-import { isTabletCheckinEnabled } from "@/lib/settings";
+import { isRoomCheckinEnabled } from "@/lib/settings";
 
 export async function GET(request: Request) {
   const auth = await requireTabletSession();
   if (auth.error) return auth.error;
-
-  const checkinEnabled = await isTabletCheckinEnabled();
-  if (!checkinEnabled) {
-    return NextResponse.json({
-      checkinEnabled: false,
-      reservation: null,
-      message: "태블릿 체크인이 비활성화되어 있습니다.",
-    });
-  }
 
   const tabletUser = await prisma.user.findUnique({
     where: { id: auth.session.id },
@@ -25,10 +16,20 @@ export async function GET(request: Request) {
   });
 
   if (!tabletUser?.roomId) {
-    return NextResponse.json(
-      { error: "연결된 회의실이 없는 태블릿 계정입니다." },
-      { status: 400 },
-    );
+    return NextResponse.json({
+      checkinEnabled: false,
+      reservation: null,
+      message: "연결된 회의실이 없는 태블릿 계정입니다.",
+    });
+  }
+
+  const checkinEnabled = await isRoomCheckinEnabled(tabletUser.roomId);
+  if (!checkinEnabled) {
+    return NextResponse.json({
+      checkinEnabled: false,
+      reservation: null,
+      message: "태블릿 체크인이 비활성화되어 있습니다.",
+    });
   }
 
   await ensurePenaltiesProcessed();
