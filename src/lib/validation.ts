@@ -34,6 +34,14 @@ export const changePinSchema = z.object({
   newPin: z.string().regex(/^\d{4}$/, "새 PIN은 숫자 4자리여야 합니다."),
 });
 
+export const updateProfileSchema = z.object({
+  name: z.string().trim().min(2, "닉네임은 2자 이상이어야 합니다.").max(50),
+});
+
+export const deleteAccountSchema = z.object({
+  currentPin: z.string().min(4, "현재 PIN을 입력해 주세요."),
+});
+
 export const reservationSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력해 주세요.").max(100),
   roomId: z.string().min(1, "회의실을 선택해 주세요."),

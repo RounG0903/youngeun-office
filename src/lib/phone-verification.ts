@@ -3,6 +3,22 @@ import { generateVerificationCode, isSmsDevMode, sendVerificationSms } from "./s
 
 const COOLDOWN_MS = 60_000;
 const CODE_TTL_MS = 5 * 60_000;
+export const VERIFICATION_WINDOW_MS = 30 * 60_000;
+
+export async function assertRecentPhoneVerification(phone: string): Promise<void> {
+  const verified = await prisma.phoneVerification.findFirst({
+    where: {
+      phone,
+      verified: true,
+      verifiedAt: { gte: new Date(Date.now() - VERIFICATION_WINDOW_MS) },
+    },
+    orderBy: { verifiedAt: "desc" },
+  });
+
+  if (!verified) {
+    throw new PhoneVerificationError("휴대폰 문자 인증을 완료해 주세요.", 400);
+  }
+}
 
 export async function issuePhoneVerification(phone: string): Promise<{
   code: string;

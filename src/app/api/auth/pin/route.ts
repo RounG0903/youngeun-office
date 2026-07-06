@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { hashPin, requireSession, verifyPin } from "@/lib/auth";
+import { assertRecentPhoneVerification, PhoneVerificationError } from "@/lib/phone-verification";
 import { prisma } from "@/lib/prisma";
 import { changePinSchema } from "@/lib/validation";
 
@@ -38,6 +39,24 @@ export async function PATCH(request: Request) {
 
   if (!(await verifyPin(currentPin, user.pinHash))) {
     return NextResponse.json({ error: "현재 PIN이 일치하지 않습니다." }, { status: 401 });
+  }
+
+  if (session.role === "USER") {
+    if (!user.phone) {
+      return NextResponse.json(
+        { error: "등록된 휴대폰 번호가 없어 PIN을 변경할 수 없습니다." },
+        { status: 400 },
+      );
+    }
+
+    try {
+      await assertRecentPhoneVerification(user.phone);
+    } catch (error) {
+      if (error instanceof PhoneVerificationError) {
+        return NextResponse.json({ error: error.message }, { status: error.status });
+      }
+      return NextResponse.json({ error: "휴대폰 인증이 필요합니다." }, { status: 400 });
+    }
   }
 
   await prisma.user.update({
