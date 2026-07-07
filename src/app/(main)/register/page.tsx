@@ -98,7 +98,7 @@ export default function RegisterPage() {
 
   return (
     <div className="ig-auth-page">
-      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+      <h1 className="ig-auth-logo ig-logo-text">Youngeun Office</h1>
 
       <div className="ig-auth-card">
         <p className="mb-4 text-center text-sm text-[var(--muted)]">

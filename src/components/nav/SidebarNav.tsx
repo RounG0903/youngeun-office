@@ -10,7 +10,7 @@ export function SidebarNav() {
 
   return (
     <aside className="ig-sidebar" aria-label="사이드 메뉴">
-      <Link href="/reservations" className="ig-sidebar-logo ig-gradient-text">
+      <Link href="/reservations" className="ig-sidebar-logo ig-logo-text">
         Youngeun Office
       </Link>
 

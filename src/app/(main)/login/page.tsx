@@ -38,7 +38,7 @@ function LoginForm() {
 
   return (
     <div className="ig-auth-page">
-      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+      <h1 className="ig-auth-logo ig-logo-text">Youngeun Office</h1>
 
       <div className="ig-auth-card">
         <form onSubmit={handleSubmit} className="space-y-2">

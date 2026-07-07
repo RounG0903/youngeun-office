@@ -57,11 +57,10 @@ textarea {
   font: inherit;
 }
 
-.ig-gradient-text {
-  background: var(--ig-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.ig-logo-text {
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .ig-gradient-ring {
@@ -696,8 +695,8 @@ textarea {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 50%;
-  background: var(--ig-gradient);
-  padding: 2px;
+  border: 2px solid var(--border);
+  background: white;
   flex-shrink: 0;
 }
 
@@ -709,7 +708,6 @@ textarea {
   height: 100%;
   border-radius: 50%;
   background: white;
-  border: 2px solid white;
 }
 
 .ig-post-username {
@@ -872,8 +870,8 @@ textarea {
   width: 5.5rem;
   height: 5.5rem;
   border-radius: 50%;
-  background: var(--ig-gradient);
-  padding: 3px;
+  border: 2px solid var(--border);
+  background: white;
   flex-shrink: 0;
 }
 
