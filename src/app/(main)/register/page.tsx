@@ -97,14 +97,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">회원가입</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          휴대폰 문자 인증 후 이름과 PIN 4자리를 설정하세요. 전화번호당 계정 1개만 생성됩니다.
+    <div className="ig-auth-page">
+      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+
+      <div className="ig-auth-card">
+        <p className="mb-4 text-center text-sm text-[var(--muted)]">
+          휴대폰 문자 인증 후 이름과 PIN 4자리를 설정하세요.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div className="field">
             <label htmlFor="phone">휴대폰 번호</label>
             <div className="input-action-row">
@@ -198,13 +199,13 @@ export default function RegisterPage() {
             {loading ? "가입 중..." : "회원가입"}
           </button>
         </form>
+      </div>
 
-        <p className="mt-4 text-center text-sm text-[var(--muted)]">
-          이미 계정이 있나요?{" "}
-          <Link href="/login" className="font-semibold text-[var(--primary)]">
-            로그인
-          </Link>
-        </p>
+      <div className="ig-auth-footer">
+        이미 계정이 있나요?{" "}
+        <Link href="/login" className="ig-link">
+          로그인
+        </Link>
       </div>
     </div>
   );

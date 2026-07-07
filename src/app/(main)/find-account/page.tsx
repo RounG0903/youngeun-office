@@ -63,14 +63,15 @@ export default function FindAccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">계정 찾기</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          가입 시 등록한 휴대폰 번호로 인증 후 아이디(이름)와 PIN을 확인할 수 있습니다.
+    <div className="ig-auth-page">
+      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+      <div className="ig-auth-card">
+        <h2 className="mb-4 text-center text-lg font-semibold">계정 찾기</h2>
+        <p className="mb-4 text-center text-sm text-[var(--muted)]">
+          가입 시 등록한 휴대폰 번호로 인증 후 아이디와 PIN을 확인할 수 있습니다.
         </p>
 
-        <form onSubmit={handleLookup} className="mt-6 space-y-4">
+        <form onSubmit={handleLookup} className="space-y-3">
           <div className="field">
             <label htmlFor="phone">휴대폰 번호</label>
             <div className="input-action-row">
@@ -132,8 +133,8 @@ export default function FindAccountPage() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-[var(--muted)]">
-          <Link href="/login" className="font-semibold text-[var(--primary)]">
+        <p className="mt-4 text-center text-sm">
+          <Link href="/login" className="ig-link">
             로그인으로 돌아가기
           </Link>
         </p>

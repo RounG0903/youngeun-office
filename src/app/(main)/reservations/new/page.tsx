@@ -139,11 +139,11 @@ export default function NewReservationPage() {
   const selectedRoom = rooms.find((room) => room.id === roomId);
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">회의실 예약</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          제목과 예약 시간은 필수입니다. 30분 단위, 06:00~22:00만 선택 가능합니다.
+    <div>
+      <div className="card p-5">
+        <h1 className="text-lg font-semibold">새 예약</h1>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          30분 단위 · 06:00~22:00
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">

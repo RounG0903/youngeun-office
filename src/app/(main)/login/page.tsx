@@ -37,26 +37,23 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">로그인</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          이름과 PIN으로 로그인하세요. 계정 유형에 따라 자동으로 화면이 연결됩니다.
-        </p>
+    <div className="ig-auth-page">
+      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+      <div className="ig-auth-card">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <div className="field">
-            <label htmlFor="name">이름</label>
             <input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              placeholder="이름"
+              aria-label="이름"
               required
             />
           </div>
 
           <div className="field">
-            <label htmlFor="pin">PIN</label>
             <input
               id="pin"
               type="password"
@@ -64,27 +61,33 @@ function LoginForm() {
               maxLength={4}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+              placeholder="PIN"
+              aria-label="PIN"
               required
             />
           </div>
 
-          {error ? <div className="alert alert-error">{error}</div> : null}
+          {error ? <div className="alert alert-error text-sm">{error}</div> : null}
 
-          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+          <button type="submit" className="btn btn-primary mt-2 w-full py-2" disabled={loading}>
             {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-[var(--muted)]">
-          <Link href="/find-account" className="font-semibold text-[var(--primary)]">
+        <div className="ig-auth-divider">또는</div>
+
+        <p className="text-center text-sm">
+          <Link href="/find-account" className="ig-link">
             계정 찾기
           </Link>
-          {" · "}
-          일반 사용자이신가요?{" "}
-          <Link href="/register" className="font-semibold text-[var(--primary)]">
-            회원가입
-          </Link>
         </p>
+      </div>
+
+      <div className="ig-auth-footer">
+        계정이 없으신가요?{" "}
+        <Link href="/register" className="ig-link">
+          가입하기
+        </Link>
       </div>
     </div>
   );
@@ -92,7 +95,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<p className="text-[var(--muted)]">로그인 화면을 불러오는 중...</p>}>
+    <Suspense fallback={<p className="text-center text-[var(--muted)]">로그인 화면을 불러오는 중...</p>}>
       <LoginForm />
     </Suspense>
   );

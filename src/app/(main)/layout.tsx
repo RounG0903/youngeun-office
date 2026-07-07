@@ -1,10 +1,11 @@
 import { Header } from "@/components/Header";
+import { UserAppShell } from "@/components/nav/UserAppShell";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-5xl overflow-x-hidden px-4 py-6 sm:py-8">{children}</main>
+      <UserAppShell>{children}</UserAppShell>
     </>
   );
 }

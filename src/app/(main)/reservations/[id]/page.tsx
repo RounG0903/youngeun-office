@@ -90,13 +90,22 @@ export default function ReservationDetailPage() {
   if (!reservation) return null;
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="card p-8">
-        <Link href="/reservations" className="text-sm text-[var(--muted)]">
-          ← 내 예약
-        </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold">{reservation.title}</h1>
+    <div>
+      <article className="ig-post">
+        <header className="ig-post-header">
+          <div className="ig-post-avatar-wrap">
+            <span className="ig-story-ring">
+              <span className="ig-post-avatar">
+                <RoomIcon color={reservation.roomColor} size={14} />
+              </span>
+            </span>
+            <div>
+              <p className="ig-post-username">{reservation.roomName}</p>
+              {reservation.roomLocationDescription ? (
+                <p className="ig-post-location">{reservation.roomLocationDescription}</p>
+              ) : null}
+            </div>
+          </div>
           <span
             className={`badge ${
               reservation.status === "NO_SHOW"
@@ -108,24 +117,18 @@ export default function ReservationDetailPage() {
           >
             {getReservationStatusLabel(reservation.status)}
           </span>
+        </header>
+        <div className="ig-post-body">
+          <h1 className="text-base font-semibold">{reservation.title}</h1>
+          <p className="ig-post-meta">
+            {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
+          </p>
         </div>
-        <div className="mt-3 flex items-start gap-2">
-          <RoomIcon color={reservation.roomColor} size={14} className="mt-1.5" />
-          <div>
-            <p className="font-medium text-[var(--foreground)]">{reservation.roomName}</p>
-            {reservation.roomLocationDescription ? (
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                {reservation.roomLocationDescription}
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <p className="mt-3">
-          {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
-        </p>
+      </article>
 
+      <div className="card border-t-0 p-5">
         {reservation.checkedInAt ? (
-          <div className="alert alert-success mt-5">
+          <div className="alert alert-success">
             체크인 완료:{" "}
             {new Intl.DateTimeFormat("ko-KR", {
               hour: "2-digit",
@@ -134,12 +137,12 @@ export default function ReservationDetailPage() {
             }).format(new Date(reservation.checkedInAt))}
           </div>
         ) : reservation.status === "ACTIVE" && reservation.tabletCheckinEnabled ? (
-          <p className="mt-5 text-sm text-[var(--muted)]">
+          <p className="text-sm text-[var(--muted)]">
             예약 당일 회의실 입구 태블릿의 체크인 QR을 스캔해 체크인하세요.
           </p>
         ) : reservation.status === "ACTIVE" ? (
-          <p className="mt-5 text-sm text-[var(--muted)]">
-            이 회의실은 체크인이 필요하지 않습니다. (태블릿 미등록 또는 체크인 비활성화)
+          <p className="text-sm text-[var(--muted)]">
+            이 회의실은 체크인이 필요하지 않습니다.
           </p>
         ) : null}
 
@@ -149,14 +152,14 @@ export default function ReservationDetailPage() {
         {reservation.canCancel ? (
           <button
             type="button"
-            className="btn btn-secondary mt-5 text-[var(--danger)]"
+            className="btn btn-secondary mt-4 w-full text-[var(--danger)]"
             onClick={handleCancel}
             disabled={cancelling}
           >
             {cancelling ? "취소 중..." : "예약 취소"}
           </button>
         ) : reservation.status === "ACTIVE" ? (
-          <p className="mt-5 text-sm text-[var(--muted)]">
+          <p className="mt-4 text-sm text-[var(--muted)]">
             예약 시작 30분 전까지만 취소할 수 있습니다.
           </p>
         ) : null}

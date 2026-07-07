@@ -72,9 +72,9 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
   }
 
   return (
-    <div className="space-y-6">
-      <div className="card p-6">
-        <h2 className="text-xl font-bold">예약 캘린더</h2>
+    <div className="space-y-3">
+      <div className="card p-4 sm:p-5">
+        <h2 className="text-lg font-semibold">예약 캘린더</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
           날짜별 회의실 예약 현황을 펼쳐서 확인할 수 있습니다.
         </p>
@@ -108,11 +108,7 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
             <button
               key={weekDate}
               type="button"
-              className={`rounded-[10px] border px-3 py-2 text-left text-sm ${
-                weekDate === date
-                  ? "border-[var(--primary)] bg-[var(--accent-surface)] text-[var(--primary)]"
-                  : "border-[var(--border)]"
-              }`}
+              className={`ig-pill w-full text-left ${weekDate === date ? "ig-pill-active" : ""}`}
               onClick={() => setDate(weekDate)}
             >
               {formatDateLabel(weekDate)}

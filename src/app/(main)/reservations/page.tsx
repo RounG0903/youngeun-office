@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RoomIcon } from "@/components/RoomIcon";
+import { IgPostCard } from "@/components/IgPostCard";
 import { formatTimeRange } from "@/lib/reservation";
 
 type Reservation = {
@@ -46,64 +46,42 @@ export default function ReservationsPage() {
   }, [router]);
 
   if (loading) {
-    return <p className="text-[var(--muted)]">예약 목록을 불러오는 중...</p>;
+    return <p className="px-4 py-8 text-center text-[var(--muted)]">불러오는 중...</p>;
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold">내 예약</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            다가오는 예약입니다. 전체 기록은{" "}
-            <Link href="/history" className="font-semibold text-[var(--primary)]">
-              히스토리
-            </Link>
-            에서 확인하세요.
-          </p>
-        </div>
-        <Link href="/reservations/new" className="btn btn-primary w-full shrink-0 sm:w-auto">
-          새 예약
-        </Link>
-      </div>
-
-      {error ? <div className="alert alert-error">{error}</div> : null}
+    <div>
+      {error ? <div className="alert alert-error mx-4 mb-4">{error}</div> : null}
 
       {reservations.length === 0 ? (
-        <div className="card p-8 text-center text-[var(--muted)]">
-          아직 예약이 없습니다.
+        <div className="ig-empty-state">
+          <p>아직 예약이 없습니다.</p>
+          <Link href="/reservations/new" className="ig-link mt-3 inline-block">
+            첫 예약 만들기
+          </Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div>
           {reservations.map((reservation) => (
-            <Link
+            <IgPostCard
               key={reservation.id}
               href={`/reservations/${reservation.id}`}
-              className="card card-hover block p-5 transition"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="font-semibold">{reservation.title}</h2>
-                  <p className="mt-1 flex items-center gap-2 text-sm text-[var(--muted)]">
-                    <RoomIcon color={reservation.room.color} size={10} />
-                    {reservation.room.name}
-                  </p>
-                  {reservation.room.locationDescription ? (
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      {reservation.room.locationDescription}
-                    </p>
-                  ) : null}
-                  <p className="mt-2 text-sm">
-                    {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
-                  </p>
-                </div>
-                {reservation.checkedInAt ? (
+              title={reservation.title}
+              subtitle={reservation.room.name}
+              location={reservation.room.locationDescription || undefined}
+              meta={formatTimeRange(
+                new Date(reservation.startTime),
+                new Date(reservation.endTime),
+              )}
+              roomColor={reservation.room.color}
+              badge={
+                reservation.checkedInAt ? (
                   <span className="badge badge-success">체크인 완료</span>
                 ) : (
-                  <span className="badge badge-muted">체크인 대기</span>
-                )}
-              </div>
-            </Link>
+                  <span className="badge badge-muted">대기</span>
+                )
+              }
+            />
           ))}
         </div>
       )}

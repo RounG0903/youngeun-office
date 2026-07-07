@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { IgPostCard } from "@/components/IgPostCard";
 import { formatTimeRange, getReservationStatusLabel } from "@/lib/reservation";
 
 type Reservation = {
@@ -13,8 +14,16 @@ type Reservation = {
   checkedInAt: string | null;
   status: string;
   cancelledAt: string | null;
-  room: { name: string };
+  room: { name: string; color?: string };
 };
+
+const FILTERS = [
+  { value: "ALL", label: "전체" },
+  { value: "ACTIVE", label: "예정" },
+  { value: "COMPLETED", label: "완료" },
+  { value: "CANCELLED", label: "취소" },
+  { value: "NO_SHOW", label: "노쇼" },
+] as const;
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -45,27 +54,20 @@ export default function HistoryPage() {
 
   const filtered = reservations.filter((r) => filter === "ALL" || r.status === filter);
 
-  if (loading) return <p className="text-[var(--muted)]">히스토리를 불러오는 중...</p>;
+  if (loading) return <p className="px-4 py-8 text-center text-[var(--muted)]">불러오는 중...</p>;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">예약 히스토리</h1>
-        <p className="mt-1 text-sm text-[var(--muted)]">전체 예약 기록을 조회합니다.</p>
+    <div>
+      <div className="px-4 pb-2 pt-3">
+        <h1 className="text-xl font-semibold">히스토리</h1>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {[
-          { value: "ALL", label: "전체" },
-          { value: "ACTIVE", label: "예정" },
-          { value: "COMPLETED", label: "이용 완료" },
-          { value: "CANCELLED", label: "취소" },
-          { value: "NO_SHOW", label: "노쇼" },
-        ].map((item) => (
+      <div className="ig-pill-scroll px-4">
+        {FILTERS.map((item) => (
           <button
             key={item.value}
             type="button"
-            className={`btn px-3 py-1 text-sm ${filter === item.value ? "btn-primary" : "btn-secondary"}`}
+            className={`ig-pill ${filter === item.value ? "ig-pill-active" : ""}`}
             onClick={() => setFilter(item.value)}
           >
             {item.label}
@@ -73,44 +75,37 @@ export default function HistoryPage() {
         ))}
       </div>
 
-      {error ? <div className="alert alert-error">{error}</div> : null}
+      {error ? <div className="alert alert-error mx-4 mt-4">{error}</div> : null}
 
       {filtered.length === 0 ? (
-        <div className="card p-8 text-center text-[var(--muted)]">기록이 없습니다.</div>
+        <div className="ig-empty-state">기록이 없습니다.</div>
       ) : (
-        <div className="space-y-3">
+        <div className="mt-2">
           {filtered.map((reservation) => (
-            <Link
+            <IgPostCard
               key={reservation.id}
               href={`/reservations/${reservation.id}`}
-              className="card card-hover block p-5 transition"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-semibold">{reservation.title}</h2>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{reservation.room.name}</p>
-                  <p className="mt-2 text-sm">
-                    {formatTimeRange(
-                      new Date(reservation.startTime),
-                      new Date(reservation.endTime),
-                    )}
-                  </p>
-                </div>
+              title={reservation.title}
+              subtitle={reservation.room.name}
+              meta={formatTimeRange(
+                new Date(reservation.startTime),
+                new Date(reservation.endTime),
+              )}
+              roomColor={reservation.room.color ?? "#3B82F6"}
+              badge={
                 <span
                   className={`badge ${
                     reservation.status === "NO_SHOW"
                       ? "badge-danger"
                       : reservation.status === "COMPLETED"
                         ? "badge-success"
-                        : reservation.status === "CANCELLED"
-                          ? "badge-muted"
-                          : "badge-muted"
+                        : "badge-muted"
                   }`}
                 >
                   {getReservationStatusLabel(reservation.status)}
                 </span>
-              </div>
-            </Link>
+              }
+            />
           ))}
         </div>
       )}

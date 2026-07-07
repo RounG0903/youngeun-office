@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 export default function AccountPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [maskedPhone, setMaskedPhone] = useState("");
   const [code, setCode] = useState("");
@@ -30,6 +31,9 @@ export default function AccountPage() {
       .then((data) => {
         if (data.user?.name) {
           setName(data.user.name);
+        }
+        if (data.user?.displayName) {
+          setDisplayName(data.user.displayName);
         }
       })
       .catch(() => undefined);
@@ -168,21 +172,24 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
-      <div className="card p-8">
-        <h1 className="text-2xl font-bold">계정 설정</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          {phoneVerified
-            ? "PIN 변경 또는 회원 탈퇴를 진행할 수 있습니다."
-            : "휴대폰 인증 후 PIN 변경 및 회원 탈퇴가 가능합니다."}
-        </p>
+    <div>
+      <header className="ig-profile-header">
+        <div className="ig-profile-avatar">
+          <div className="ig-profile-avatar-inner">
+            {(displayName || name || "?").charAt(0).toUpperCase()}
+          </div>
+        </div>
+        <div className="min-w-0">
+          <h1 className="ig-profile-name">{displayName || name || "프로필"}</h1>
+          <p className="ig-profile-sub">계정 설정</p>
+        </div>
+      </header>
 
-        {message ? <div className="alert alert-success mt-4">{message}</div> : null}
-        {error ? <div className="alert alert-error mt-4">{error}</div> : null}
-      </div>
+      {message ? <div className="alert alert-success mx-4 mb-4">{message}</div> : null}
+      {error ? <div className="alert alert-error mx-4 mb-4">{error}</div> : null}
 
-      <div className="card p-8">
-        <h2 className="text-lg font-bold">닉네임 변경</h2>
+      <div className="card mx-4 mb-4 p-5">
+        <h2 className="ig-section-title">닉네임</h2>
         <form onSubmit={handleProfileSubmit} className="mt-4 space-y-4">
           <div className="field">
             <label htmlFor="nickname">닉네임</label>
@@ -202,9 +209,8 @@ export default function AccountPage() {
       </div>
 
       {!phoneVerified ? (
-        <div className="card p-8">
-          <section className="rounded-xl border border-[var(--border)] p-4">
-            <h2 className="font-semibold">휴대폰 인증</h2>
+        <div className="card mx-4 mb-4 p-5">
+          <h2 className="ig-section-title">휴대폰 인증</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
               PIN 변경 및 회원 탈퇴를 위해 휴대폰 인증이 필요합니다.
               {maskedPhone ? ` (${maskedPhone})` : ""}
@@ -243,12 +249,11 @@ export default function AccountPage() {
             </div>
 
             {smsMessage ? <div className="mt-3 text-sm text-[var(--muted)]">{smsMessage}</div> : null}
-          </section>
         </div>
       ) : (
         <>
-          <div className="card p-8">
-            <h2 className="text-lg font-bold">PIN 변경</h2>
+          <div className="card mx-4 mb-4 p-5">
+            <h2 className="ig-section-title">PIN 변경</h2>
             <form onSubmit={handlePinSubmit} className="mt-4 space-y-4">
               <div className="field">
                 <label htmlFor="current-pin">현재 PIN</label>
@@ -292,8 +297,8 @@ export default function AccountPage() {
             </form>
           </div>
 
-          <div className="card border-red-200 p-8">
-            <h2 className="text-lg font-bold text-red-700">회원 탈퇴</h2>
+          <div className="card mx-4 mb-4 border-[#ffd4d8] p-5">
+            <h2 className="ig-section-title text-[var(--danger)]">회원 탈퇴</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
               탈퇴 시 예약 기록과 계정 정보가 삭제됩니다.
             </p>
@@ -318,9 +323,9 @@ export default function AccountPage() {
         </>
       )}
 
-      <p className="text-center text-sm">
-        <Link href="/reservations" className="text-[var(--primary)]">
-          예약 목록으로
+      <p className="pb-8 text-center text-sm">
+        <Link href="/reservations" className="ig-link">
+          홈으로
         </Link>
       </p>
     </div>
