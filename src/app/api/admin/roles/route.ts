@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { requireAdminPermission } from "@/lib/admin";
+import { formatUserDisplayName } from "@/lib/user-number";
 
 export async function GET() {
   const auth = await requireAdminPermission("roles");
@@ -13,6 +14,7 @@ export async function GET() {
       select: {
         id: true,
         name: true,
+        userNumber: true,
         phone: true,
         createdAt: true,
       },
@@ -23,6 +25,7 @@ export async function GET() {
       select: {
         id: true,
         name: true,
+        userNumber: true,
         phone: true,
         createdAt: true,
       },
@@ -30,7 +33,24 @@ export async function GET() {
     }),
   ]);
 
-  return NextResponse.json({ subAdmins, candidates });
+  const mapUser = (user: {
+    id: string;
+    name: string;
+    userNumber: number | null;
+    phone: string | null;
+    createdAt: Date;
+  }) => ({
+    ...user,
+    displayName:
+      user.userNumber != null
+        ? formatUserDisplayName(user.name, user.userNumber)
+        : user.name,
+  });
+
+  return NextResponse.json({
+    subAdmins: subAdmins.map(mapUser),
+    candidates: candidates.map(mapUser),
+  });
 }
 
 export async function POST(request: Request) {

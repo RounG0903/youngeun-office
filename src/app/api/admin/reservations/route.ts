@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { requireAdminPermission } from "@/lib/admin";
+import { isAdminRole } from "@/lib/permissions";
 import {
   combineDateAndTime,
   isFutureReservation,
   isSlotInBusinessHours,
-  isUnderPenalty,
 } from "@/lib/reservation";
+import { formatUserDisplayName } from "@/lib/user-number";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 
 export async function GET() {
@@ -25,7 +26,18 @@ export async function GET() {
     take: 100,
   });
 
-  return NextResponse.json({ reservations });
+  return NextResponse.json({
+    reservations: reservations.map((reservation) => ({
+      ...reservation,
+      user: {
+        ...reservation.user,
+        displayName:
+          reservation.user.userNumber != null
+            ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
+            : reservation.user.name,
+      },
+    })),
+  });
 }
 
 export async function POST(request: Request) {
@@ -33,26 +45,21 @@ export async function POST(request: Request) {
   if (auth.error) return auth.error;
 
   const body = await request.json();
-  const { title, userId, roomId, date, startTime, endTime } = body as {
+  const { title, roomId, date, startTime, endTime } = body as {
     title?: string;
-    userId?: string;
     roomId?: string;
     date?: string;
     startTime?: string;
     endTime?: string;
   };
 
-  if (!title?.trim() || !userId || !roomId || !date || !startTime || !endTime) {
+  if (!title?.trim() || !roomId || !date || !startTime || !endTime) {
     return NextResponse.json({ error: "모든 필드를 입력해 주세요." }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
-    return NextResponse.json({ error: "회원을 찾을 수 없습니다." }, { status: 404 });
-  }
-
-  if (isUnderPenalty(user.penaltyUntil)) {
-    return NextResponse.json({ error: "패널티 기간 중인 회원입니다." }, { status: 403 });
+  const adminUser = await prisma.user.findUnique({ where: { id: auth.session.id } });
+  if (!adminUser || !isAdminRole(adminUser.role)) {
+    return NextResponse.json({ error: "관리자 계정을 찾을 수 없습니다." }, { status: 404 });
   }
 
   const start = combineDateAndTime(date, startTime);
@@ -86,7 +93,7 @@ export async function POST(request: Request) {
   const reservation = await prisma.reservation.create({
     data: {
       title: title.trim(),
-      userId,
+      userId: adminUser.id,
       roomId,
       startTime: start,
       endTime: end,
@@ -97,6 +104,11 @@ export async function POST(request: Request) {
     },
   });
 
+  const userDisplayName =
+    reservation.user.userNumber != null
+      ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
+      : reservation.user.name;
+
   await logAdminAction({
     actorId: auth.session.id,
     actorName: auth.session.name,
@@ -106,7 +118,7 @@ export async function POST(request: Request) {
     entityId: reservation.id,
     details: {
       title: reservation.title,
-      userName: reservation.user.name,
+      userName: userDisplayName,
       roomName: reservation.room.name,
       startTime: reservation.startTime,
       endTime: reservation.endTime,

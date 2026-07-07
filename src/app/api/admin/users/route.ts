@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminPermission } from "@/lib/admin";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
+import { formatUserDisplayName } from "@/lib/user-number";
 
 export async function GET() {
   const auth = await requireAdminPermission("users");
@@ -21,6 +22,11 @@ export async function GET() {
     users: users.map((user) => ({
       id: user.id,
       name: user.name,
+      userNumber: user.userNumber,
+      displayName:
+        user.userNumber != null
+          ? formatUserDisplayName(user.name, user.userNumber)
+          : user.name,
       phone: user.phone,
       role: user.role,
       checkinRequired: user.checkinRequired,

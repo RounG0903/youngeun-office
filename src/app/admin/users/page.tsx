@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type User = {
   id: string;
   name: string;
+  displayName: string;
   phone: string | null;
   checkinRequired: boolean;
   reservationCount: number;
@@ -90,7 +91,7 @@ export default function AdminUsersPage() {
           <tbody>
             {users.map((user) => (
               <tr key={user.id} className="border-b border-[var(--border)]">
-                <td className="py-3 pr-3">{user.name}</td>
+                <td className="py-3 pr-3">{user.displayName}</td>
                 <td className="py-3 pr-3">{user.phone ?? "-"}</td>
                 <td className="py-3 pr-3">
                   <span className={user.checkinRequired ? "" : "text-[var(--muted)]"}>
@@ -129,7 +130,7 @@ export default function AdminUsersPage() {
                     <button
                       type="button"
                       className="btn btn-secondary px-2 py-1 text-xs text-[var(--danger)]"
-                      onClick={() => handleDelete(user.id, user.name)}
+                      onClick={() => handleDelete(user.id, user.displayName)}
                     >
                       삭제
                     </button>
