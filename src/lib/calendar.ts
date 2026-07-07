@@ -1,19 +1,17 @@
+import { APP_TIMEZONE, combineDateAndTime, getDateStringInTimezone } from "@/lib/reservation";
+
 export function shiftDate(date: string, days: number): string {
-  const [year, month, day] = date.split("-").map(Number);
-  const next = new Date(year, month - 1, day + days);
-  const y = next.getFullYear();
-  const m = String(next.getMonth() + 1).padStart(2, "0");
-  const d = String(next.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  const anchor = combineDateAndTime(date, "12:00");
+  return getDateStringInTimezone(new Date(anchor.getTime() + days * 86_400_000));
 }
 
 export function formatDateLabel(date: string): string {
-  const [year, month, day] = date.split("-").map(Number);
-  const value = new Date(year, month - 1, day);
+  const value = combineDateAndTime(date, "12:00");
   return new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
     month: "long",
     day: "numeric",
     weekday: "long",
+    timeZone: APP_TIMEZONE,
   }).format(value);
 }

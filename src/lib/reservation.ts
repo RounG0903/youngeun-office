@@ -30,13 +30,35 @@ function getZonedParts(date: Date, timeZone = APP_TIMEZONE): ZonedParts {
   const read = (type: Intl.DateTimeFormatPartTypes) =>
     Number(parts.find((part) => part.type === type)?.value ?? 0);
 
+  let hour = read("hour");
+  if (hour === 24) hour = 0;
+
   return {
     year: read("year"),
     month: read("month"),
     day: read("day"),
-    hour: read("hour"),
+    hour,
     minute: read("minute"),
   };
+}
+
+function createAppFormatter(options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat("ko-KR", {
+    ...options,
+    timeZone: APP_TIMEZONE,
+  });
+}
+
+export function formatAppTime(date: Date): string {
+  return createAppFormatter({
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+export function formatAppTimeRangeLabel(start: Date, end: Date): string {
+  return `${formatAppTime(start)} ~ ${formatAppTime(end)}`;
 }
 
 export function getDateStringInTimezone(date: Date, timeZone = APP_TIMEZONE): string {
@@ -112,7 +134,7 @@ export function isUnderPenalty(penaltyUntil: Date | null | undefined, now = new 
 }
 
 export function formatDateTime(date: Date): string {
-  return new Intl.DateTimeFormat("ko-KR", {
+  return createAppFormatter({
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -124,14 +146,14 @@ export function formatDateTime(date: Date): string {
 }
 
 export function formatTimeRange(start: Date, end: Date): string {
-  const datePart = new Intl.DateTimeFormat("ko-KR", {
+  const datePart = createAppFormatter({
     year: "numeric",
     month: "long",
     day: "numeric",
     weekday: "short",
   }).format(start);
 
-  const timeFmt = new Intl.DateTimeFormat("ko-KR", {
+  const timeFmt = createAppFormatter({
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { formatDateTime } from "@/lib/reservation";
 
 type Room = { id: string; name: string };
 
@@ -174,7 +175,7 @@ export default function AdminTabletUsersPage() {
                   )}
                 </td>
                 <td className="py-3 pr-3 text-[var(--muted)]">
-                  {new Date(user.createdAt).toLocaleString("ko-KR")}
+                  {formatDateTime(new Date(user.createdAt))}
                 </td>
                 <td className="py-3">
                   <div className="flex flex-wrap gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatDateTime } from "@/lib/reservation";
 
 type User = {
   id: string;
@@ -98,7 +99,7 @@ export default function AdminUsersPage() {
                 <td className="py-3 pr-3">{user.reservationCount}</td>
                 <td className="py-3 pr-3">
                   {user.penaltyUntil && new Date(user.penaltyUntil) > new Date()
-                    ? new Date(user.penaltyUntil).toLocaleString("ko-KR")
+                    ? formatDateTime(new Date(user.penaltyUntil))
                     : "-"}
                 </td>
                 <td className="py-3">
