@@ -21,7 +21,7 @@ export function LogoutButton({ className = "", onLoggedOut }: LogoutButtonProps)
     <button
       type="button"
       onClick={handleLogout}
-      className={`btn btn-secondary px-3 py-2 text-sm ${className}`.trim()}
+      className={`btn btn-logout px-3 py-2 text-sm ${className}`.trim()}
     >
       로그아웃
     </button>
