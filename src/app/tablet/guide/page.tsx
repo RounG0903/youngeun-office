@@ -33,7 +33,7 @@ export default function TabletGuidePage() {
     <div className="tablet-screen">
       <div className="tablet-card">
         <div className="tablet-title">예약 사이트 안내</div>
-        <div className="tablet-subtitle">QR을 스캔하여 회의실 예약 사이트로 이동</div>
+        <div className="tablet-subtitle">QR을 스캔하여 로그인 화면으로 이동</div>
 
         {data ? (
           <>

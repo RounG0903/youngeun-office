@@ -1228,3 +1228,19 @@ textarea {
 .theme-toggle-switch-on .theme-toggle-thumb {
   transform: translateX(1.25rem);
 }
+
+/* QR check-in scanner */
+.qr-checkin-scanner {
+  margin-top: 0.25rem;
+}
+
+.qr-checkin-viewport {
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #000;
+}
+
+.qr-checkin-viewport video {
+  border-radius: 12px;
+}

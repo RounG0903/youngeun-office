@@ -2,6 +2,8 @@ export const OPEN_HOUR = 6;
 export const CLOSE_HOUR = 22;
 export const SLOT_MINUTES = 30;
 export const CANCEL_DEADLINE_MINUTES = 30;
+export const CHECKIN_WINDOW_MINUTES_BEFORE = 30;
+export const CHECKIN_WINDOW_MINUTES_AFTER = 15;
 export const PENALTY_DAYS = 14;
 
 export function generateTimeSlots(): string[] {
@@ -42,6 +44,12 @@ export function isFutureReservation(start: Date, now = new Date()): boolean {
 export function canCancelReservation(start: Date, now = new Date()): boolean {
   const deadline = start.getTime() - CANCEL_DEADLINE_MINUTES * 60 * 1000;
   return now.getTime() < deadline;
+}
+
+export function isWithinCheckinWindow(start: Date, end: Date, now = new Date()): boolean {
+  const windowStart = start.getTime() - CHECKIN_WINDOW_MINUTES_BEFORE * 60 * 1000;
+  const windowEnd = end.getTime() + CHECKIN_WINDOW_MINUTES_AFTER * 60 * 1000;
+  return now.getTime() >= windowStart && now.getTime() <= windowEnd;
 }
 
 export function addPenaltyDays(from = new Date()): Date {

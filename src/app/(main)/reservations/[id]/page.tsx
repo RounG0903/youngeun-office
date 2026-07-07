@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { QrCheckinScanner } from "@/components/QrCheckinScanner";
 import { RoomIcon } from "@/components/RoomIcon";
-import { formatTimeRange, getReservationStatusLabel } from "@/lib/reservation";
+import {
+  formatTimeRange,
+  getReservationStatusLabel,
+  isWithinCheckinWindow,
+} from "@/lib/reservation";
 
 type ReservationDetail = {
   id: string;
@@ -18,6 +23,8 @@ type ReservationDetail = {
   status: string;
   canCancel: boolean;
   tabletCheckinEnabled: boolean;
+  checkinRequired: boolean;
+  checkinWindowOpen: boolean;
 };
 
 export default function ReservationDetailPage() {
@@ -28,6 +35,7 @@ export default function ReservationDetailPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [now, setNow] = useState(() => new Date());
 
   async function load() {
     const detailRes = await fetch(`/api/reservations/${params.id}`);
@@ -51,6 +59,22 @@ export default function ReservationDetailPage() {
   useEffect(() => {
     load();
   }, [params.id, router]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const handleCheckinSuccess = useCallback((successMessage: string) => {
+    setMessage(successMessage);
+    setError("");
+    void load();
+    router.refresh();
+  }, [router]);
+
+  const handleCheckinError = useCallback((errorMessage: string) => {
+    setError(errorMessage);
+  }, []);
 
   async function handleCancel() {
     if (!reservation || !confirm("예약을 취소하시겠습니까?")) return;
@@ -89,6 +113,12 @@ export default function ReservationDetailPage() {
 
   if (!reservation) return null;
 
+  const startTime = new Date(reservation.startTime);
+  const endTime = new Date(reservation.endTime);
+  const showCheckinScanner =
+    reservation.checkinWindowOpen &&
+    isWithinCheckinWindow(startTime, endTime, now);
+
   return (
     <div>
       <article className="ig-post">
@@ -120,9 +150,7 @@ export default function ReservationDetailPage() {
         </header>
         <div className="ig-post-body">
           <h1 className="text-base font-semibold">{reservation.title}</h1>
-          <p className="ig-post-meta">
-            {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
-          </p>
+          <p className="ig-post-meta">{formatTimeRange(startTime, endTime)}</p>
         </div>
       </article>
 
@@ -136,10 +164,22 @@ export default function ReservationDetailPage() {
               hour12: false,
             }).format(new Date(reservation.checkedInAt))}
           </div>
+        ) : showCheckinScanner ? (
+          <QrCheckinScanner
+            reservationId={reservation.id}
+            onSuccess={handleCheckinSuccess}
+            onError={handleCheckinError}
+          />
         ) : reservation.status === "ACTIVE" && reservation.tabletCheckinEnabled ? (
-          <p className="text-sm text-[var(--muted)]">
-            예약 당일 회의실 입구 태블릿의 체크인 QR을 스캔해 체크인하세요.
-          </p>
+          reservation.checkinRequired ? (
+            <p className="text-sm text-[var(--muted)]">
+              예약 30분 전부터 이 화면에서 태블릿 체크인 QR을 스캔할 수 있습니다.
+            </p>
+          ) : (
+            <p className="text-sm text-[var(--muted)]">
+              이 계정은 체크인 면제 상태입니다.
+            </p>
+          )
         ) : reservation.status === "ACTIVE" ? (
           <p className="text-sm text-[var(--muted)]">
             이 회의실은 체크인이 필요하지 않습니다.

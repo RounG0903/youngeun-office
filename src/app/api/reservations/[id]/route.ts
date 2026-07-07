@@ -34,6 +34,16 @@ export async function GET(_request: Request, context: RouteContext) {
   const canCancel =
     reservation.status === "ACTIVE" && canCancelReservation(reservation.startTime, now);
   const tabletCheckinEnabled = await isRoomCheckinEnabled(reservation.roomId);
+  const user = await prisma.user.findUnique({
+    where: { id: session.id },
+    select: { checkinRequired: true },
+  });
+  const checkinRequired = user?.checkinRequired ?? true;
+  const checkinWindowOpen =
+    reservation.status === "ACTIVE" &&
+    !reservation.checkedInAt &&
+    tabletCheckinEnabled &&
+    checkinRequired;
 
   return NextResponse.json({
     reservation: {
@@ -49,6 +59,8 @@ export async function GET(_request: Request, context: RouteContext) {
       cancelledAt: reservation.cancelledAt,
       canCancel,
       tabletCheckinEnabled,
+      checkinRequired,
+      checkinWindowOpen,
     },
   });
 }
