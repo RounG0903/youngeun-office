@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { getCheckinUrl } from "@/lib/session";
 import { requireAdminSession } from "@/lib/admin";
+import { getPublicSiteUrl } from "@/lib/site-url";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -22,8 +23,8 @@ export async function GET(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "예약을 찾을 수 없습니다." }, { status: 404 });
   }
 
-  const origin = new URL(request.url).origin;
-  const checkinUrl = await getCheckinUrl(reservation.id, origin);
+  const siteUrl = getPublicSiteUrl(request);
+  const checkinUrl = await getCheckinUrl(reservation.id, siteUrl);
   const qrDataUrl = await QRCode.toDataURL(checkinUrl, {
     margin: 2,
     width: 320,

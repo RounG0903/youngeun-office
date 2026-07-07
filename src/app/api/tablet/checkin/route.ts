@@ -6,6 +6,7 @@ import { ensurePenaltiesProcessed } from "@/lib/penalty";
 import { requireTabletSession } from "@/lib/admin";
 import { isRoomCheckinEnabled } from "@/lib/settings";
 import { formatUserDisplayName } from "@/lib/user-number";
+import { getPublicSiteUrl } from "@/lib/site-url";
 
 export async function GET(request: Request) {
   const auth = await requireTabletSession();
@@ -62,8 +63,8 @@ export async function GET(request: Request) {
     });
   }
 
-  const origin = new URL(request.url).origin;
-  const checkinUrl = await getCheckinUrl(reservation.id, origin);
+  const siteUrl = getPublicSiteUrl(request);
+  const checkinUrl = await getCheckinUrl(reservation.id, siteUrl);
   const qrDataUrl = await QRCode.toDataURL(checkinUrl, { margin: 2, width: 480 });
 
   return NextResponse.json({
