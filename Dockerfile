@@ -12,14 +12,15 @@ RUN npm ci --include=dev --ignore-scripts
 
 COPY . .
 
+RUN mkdir -p /data
+
 ENV DATABASE_URL="file:/data/dev.db"
 RUN npx prisma generate && npm run build
 
 ENV NODE_ENV=production
 
 RUN sed -i 's/\r$//' /app/docker-entrypoint.sh \
-  && chmod +x /app/docker-entrypoint.sh \
-  && mkdir -p /data
+  && chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 3000
 ENV PORT=3000

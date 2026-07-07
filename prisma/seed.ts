@@ -4,7 +4,7 @@ import { pickRoomColorByIndex } from "../src/lib/room";
 import {
   assignUserNumbersToExistingUsers,
   SERVER_ADMIN_USER_NUMBER,
-} from "../src/lib/user-number";
+} from "./assign-user-numbers";
 
 const prisma = new PrismaClient();
 
@@ -51,7 +51,7 @@ async function main() {
     },
   });
 
-  await assignUserNumbersToExistingUsers();
+  await assignUserNumbersToExistingUsers(prisma);
 
   const legacyAdmin = await prisma.user.findUnique({ where: { name: "admin" } });
   if (legacyAdmin?.role === "ADMIN") {
