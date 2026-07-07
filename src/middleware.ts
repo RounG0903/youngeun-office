@@ -14,6 +14,7 @@ function isProtectedPath(pathname: string): boolean {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/tablet") ||
     pathname.startsWith("/reservations") ||
+    pathname.startsWith("/calendar") ||
     pathname.startsWith("/history") ||
     pathname.startsWith("/account") ||
     pathname.startsWith("/checkin")

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoutButton } from "./LogoutButton";
 
@@ -8,8 +9,17 @@ type UserNavProps = {
   userName: string;
 };
 
+const MENU_LINKS = [
+  { href: "/reservations/new", label: "예약하기" },
+  { href: "/reservations", label: "내 예약" },
+  { href: "/calendar", label: "예약 캘린더" },
+  { href: "/history", label: "히스토리" },
+  { href: "/account", label: "계정 설정" },
+] as const;
+
 export function UserNav({ userName }: UserNavProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="relative">
@@ -34,39 +44,47 @@ export function UserNav({ userName }: UserNavProps) {
           id="user-nav-menu"
           className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,12rem)] overflow-hidden rounded-xl border border-[var(--border)] bg-white py-2 shadow-lg"
         >
-          <Link
-            href="/reservations/new"
-            className="block px-4 py-2.5 text-sm hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            예약하기
-          </Link>
-          <Link
-            href="/reservations"
-            className="block px-4 py-2.5 text-sm hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            내 예약
-          </Link>
-          <Link
-            href="/history"
-            className="block px-4 py-2.5 text-sm hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            히스토리
-          </Link>
-          <Link
-            href="/account"
-            className="block px-4 py-2.5 text-sm hover:bg-slate-50"
-            onClick={() => setOpen(false)}
-          >
-            계정 설정
-          </Link>
+          {MENU_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`block px-4 py-2.5 text-sm hover:bg-slate-50 ${
+                pathname === link.href || pathname.startsWith(`${link.href}/`)
+                  ? "font-semibold text-[var(--primary)]"
+                  : ""
+              }`}
+              onClick={() => setOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
           <div className="my-1 border-t border-[var(--border)] px-4 py-2">
             <LogoutButton className="w-full" onLoggedOut={() => setOpen(false)} />
           </div>
         </nav>
       ) : null}
     </div>
+  );
+}
+
+export function UserTopNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="hidden items-center gap-1 text-sm md:flex">
+      {MENU_LINKS.slice(0, 4).map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className={`rounded-[10px] px-3 py-2 whitespace-nowrap ${
+            pathname === link.href || pathname.startsWith(`${link.href}/`)
+              ? "bg-blue-50 font-semibold text-[var(--primary)]"
+              : "text-[var(--muted)] hover:bg-slate-50 hover:text-[var(--foreground)]"
+          }`}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </nav>
   );
 }

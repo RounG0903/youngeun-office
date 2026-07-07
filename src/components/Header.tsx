@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
-import { UserNav } from "./UserNav";
+import { UserNav, UserTopNav } from "./UserNav";
 
 export async function Header() {
   const session = await getSession();
@@ -50,14 +50,17 @@ export async function Header() {
       ) : null}
 
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:py-4">
-        <Link href="/reservations" className="min-w-0 flex flex-col">
+        <Link href="/reservations" className="min-w-0 shrink-0 flex flex-col">
           <span className="truncate text-base font-bold text-[var(--primary)] sm:text-lg">
             Youngeun Office
           </span>
           <span className="truncate text-xs text-[var(--muted)] sm:text-sm">교육관 회의실 예약</span>
         </Link>
 
-        <UserNav userName={displayName} />
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <UserTopNav />
+          <UserNav userName={displayName} />
+        </div>
       </div>
     </header>
   );

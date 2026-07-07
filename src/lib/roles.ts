@@ -34,6 +34,7 @@ export function isRoleAllowedOnPath(
   if (pathname.startsWith("/checkin")) return role === "USER";
   if (
     pathname.startsWith("/reservations") ||
+    pathname.startsWith("/calendar") ||
     pathname.startsWith("/history") ||
     pathname.startsWith("/account")
   ) {
