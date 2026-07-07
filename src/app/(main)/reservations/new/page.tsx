@@ -34,6 +34,12 @@ export default function NewReservationPage() {
   const [bookedReservations, setBookedReservations] = useState<
     { startTime: string; endTime: string }[]
   >([]);
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetch("/api/reservations")
@@ -73,7 +79,7 @@ export default function NewReservationPage() {
   }, [roomId, date]);
 
   useEffect(() => {
-    const startSlots = filterPastTimeSlots(date, allSlots);
+    const startSlots = filterPastTimeSlots(date, allSlots, now);
     if (startTime && !startSlots.includes(startTime)) {
       setStartTime("");
       setEndTime("");
@@ -83,7 +89,7 @@ export default function NewReservationPage() {
       setStartTime("");
       setEndTime("");
     }
-  }, [allSlots, bookedSlots, date, startTime]);
+  }, [allSlots, bookedSlots, date, now, startTime]);
 
   useEffect(() => {
     if (!startTime) {

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CLOSE_HOUR,
   doesRangeOverlapBooked,
@@ -39,12 +39,19 @@ export function TimeRangePicker({
   onStartChange,
   onEndChange,
 }: TimeRangePickerProps) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const allSlots = useMemo(() => generateTimeSlots(), []);
   const timelineSlots = useMemo(() => [...allSlots, CLOSE_TIME], [allSlots]);
 
   const availableStartSlots = useMemo(
-    () => new Set(filterPastTimeSlots(date, allSlots)),
-    [allSlots, date],
+    () => new Set(filterPastTimeSlots(date, allSlots, now)),
+    [allSlots, date, now],
   );
 
   const bookedSlotSet = useMemo(() => new Set(bookedSlots), [bookedSlots]);
@@ -62,6 +69,8 @@ export function TimeRangePicker({
   const endMinutes = endTime ? slotToMinutes(endTime) : null;
 
   function isSlotDisabled(slot: string): boolean {
+    if (isPastTimeSlot(date, slot, now)) return true;
+
     const minutes = slotToMinutes(slot);
     const isClose = slot === CLOSE_TIME;
 
@@ -129,7 +138,7 @@ export function TimeRangePicker({
 
   function getSlotState(slot: string) {
     const minutes = slotToMinutes(slot);
-    const isPast = isPastTimeSlot(date, slot);
+    const isPast = isPastTimeSlot(date, slot, now);
     return {
       isPast,
       isBooked: !isPast && bookedSlotSet.has(slot),

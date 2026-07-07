@@ -310,6 +310,14 @@ textarea {
   color: #9ca3af;
 }
 
+.time-range-btn-past.time-range-btn-start,
+.time-range-btn-past.time-range-btn-end,
+.time-range-btn-past.time-range-btn-in-range {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #9ca3af;
+}
+
 .time-range-btn-past:disabled {
   opacity: 1;
   cursor: not-allowed;

@@ -45,9 +45,15 @@ export default function AdminReservationsPage() {
   const [bookedReservations, setBookedReservations] = useState<
     { startTime: string; endTime: string }[]
   >([]);
+  const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const startSlots = filterPastTimeSlots(date, allSlots);
+    const timer = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const startSlots = filterPastTimeSlots(date, allSlots, now);
     if (startTime && !startSlots.includes(startTime)) {
       setStartTime("");
       setEndTime("");
@@ -57,7 +63,7 @@ export default function AdminReservationsPage() {
       setStartTime("");
       setEndTime("");
     }
-  }, [allSlots, bookedSlots, date, startTime]);
+  }, [allSlots, bookedSlots, date, now, startTime]);
 
   useEffect(() => {
     if (!startTime) {
