@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getHomePathForRole, getRoleLabel } from "@/lib/roles";
-import { formatUserDisplayName } from "@/lib/user-number";
+import { formatUserDisplayName, migrateLegacyUserNumbersIfNeeded } from "@/lib/user-number";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { LogoutButton } from "@/components/LogoutButton";
 
@@ -28,6 +28,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (session.role !== "ADMIN" && session.role !== "SUB_ADMIN") {
     redirect(getHomePathForRole(session.role));
   }
+
+  await migrateLegacyUserNumbersIfNeeded();
 
   const dbUser = await prisma.user.findUnique({
     where: { id: session.id },
