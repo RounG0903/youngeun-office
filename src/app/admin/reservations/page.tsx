@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { TimeRangePicker } from "@/components/TimeRangePicker";
 import {
   CLOSE_HOUR,
+  doesRangeOverlapBooked,
   filterEndTimeSlots,
   filterPastTimeSlots,
   formatTimeRange,
@@ -40,14 +41,23 @@ export default function AdminReservationsPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bookedReservations, setBookedReservations] = useState<
+    { startTime: string; endTime: string }[]
+  >([]);
 
   useEffect(() => {
     const startSlots = filterPastTimeSlots(date, allSlots);
     if (startTime && !startSlots.includes(startTime)) {
       setStartTime("");
       setEndTime("");
+      return;
     }
-  }, [allSlots, date, startTime]);
+    if (startTime && bookedSlots.includes(startTime)) {
+      setStartTime("");
+      setEndTime("");
+    }
+  }, [allSlots, bookedSlots, date, startTime]);
 
   useEffect(() => {
     if (!startTime) {
@@ -55,10 +65,33 @@ export default function AdminReservationsPage() {
       return;
     }
     const endSlots = [...filterEndTimeSlots(startTime, allSlots), closeTime];
-    if (endTime && !endSlots.includes(endTime)) {
+    const parsedReservations = bookedReservations.map((reservation) => ({
+      startTime: new Date(reservation.startTime),
+      endTime: new Date(reservation.endTime),
+    }));
+    if (
+      endTime &&
+      (!endSlots.includes(endTime) ||
+        doesRangeOverlapBooked(startTime, endTime, parsedReservations))
+    ) {
       setEndTime("");
     }
-  }, [allSlots, closeTime, endTime, startTime]);
+  }, [allSlots, bookedReservations, closeTime, endTime, startTime]);
+
+  useEffect(() => {
+    if (!roomId || !date) return;
+
+    fetch(`/api/reservations/availability?roomId=${roomId}&date=${date}`)
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (!data) return;
+        setBookedSlots(data.bookedSlots ?? []);
+        setBookedReservations(data.reservations ?? []);
+      });
+  }, [roomId, date]);
 
   async function load() {
     const [resRes, usersRes, roomsRes] = await Promise.all([
@@ -171,6 +204,8 @@ export default function AdminReservationsPage() {
               date={date}
               startTime={startTime}
               endTime={endTime}
+              bookedSlots={bookedSlots}
+              bookedReservations={bookedReservations}
               onStartChange={setStartTime}
               onEndChange={setEndTime}
             />

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { TimeRangePicker } from "@/components/TimeRangePicker";
 import {
   CLOSE_HOUR,
+  doesRangeOverlapBooked,
   filterEndTimeSlots,
   filterPastTimeSlots,
   generateTimeSlots,
@@ -29,6 +30,10 @@ export default function NewReservationPage() {
   const [endTime, setEndTime] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bookedReservations, setBookedReservations] = useState<
+    { startTime: string; endTime: string }[]
+  >([]);
 
   useEffect(() => {
     fetch("/api/reservations")
@@ -53,12 +58,32 @@ export default function NewReservationPage() {
   }, [router]);
 
   useEffect(() => {
+    if (!roomId || !date) return;
+
+    fetch(`/api/reservations/availability?roomId=${roomId}&date=${date}`)
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (!data) return;
+        setBookedSlots(data.bookedSlots ?? []);
+        setBookedReservations(data.reservations ?? []);
+      });
+  }, [roomId, date]);
+
+  useEffect(() => {
     const startSlots = filterPastTimeSlots(date, allSlots);
     if (startTime && !startSlots.includes(startTime)) {
       setStartTime("");
       setEndTime("");
+      return;
     }
-  }, [allSlots, date, startTime]);
+    if (startTime && bookedSlots.includes(startTime)) {
+      setStartTime("");
+      setEndTime("");
+    }
+  }, [allSlots, bookedSlots, date, startTime]);
 
   useEffect(() => {
     if (!startTime) {
@@ -66,10 +91,18 @@ export default function NewReservationPage() {
       return;
     }
     const endSlots = [...filterEndTimeSlots(startTime, allSlots), closeTime];
-    if (endTime && !endSlots.includes(endTime)) {
+    const parsedReservations = bookedReservations.map((reservation) => ({
+      startTime: new Date(reservation.startTime),
+      endTime: new Date(reservation.endTime),
+    }));
+    if (
+      endTime &&
+      (!endSlots.includes(endTime) ||
+        doesRangeOverlapBooked(startTime, endTime, parsedReservations))
+    ) {
       setEndTime("");
     }
-  }, [allSlots, closeTime, endTime, startTime]);
+  }, [allSlots, bookedReservations, closeTime, endTime, startTime]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -146,6 +179,8 @@ export default function NewReservationPage() {
             date={date}
             startTime={startTime}
             endTime={endTime}
+            bookedSlots={bookedSlots}
+            bookedReservations={bookedReservations}
             onStartChange={setStartTime}
             onEndChange={setEndTime}
           />
