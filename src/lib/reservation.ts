@@ -103,6 +103,17 @@ export function filterPastTimeSlots(date: string, slots: string[], now = new Dat
   });
 }
 
+export function isPastTimeSlot(date: string, slot: string, now = new Date()): boolean {
+  const today = getMinSelectableDate(now);
+  if (date > today) return false;
+  if (date < today) return true;
+
+  const [hour, minute] = slot.split(":").map(Number);
+  const slotMinutes = hour * 60 + minute;
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  return slotMinutes <= currentMinutes;
+}
+
 export function filterEndTimeSlots(startTime: string, slots: string[]): string[] {
   const [startHour, startMinute] = startTime.split(":").map(Number);
   const startTotal = startHour * 60 + startMinute;

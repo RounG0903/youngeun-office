@@ -4,6 +4,7 @@ import {
   doesRangeOverlapBooked,
   filterPastTimeSlots,
   generateTimeSlots,
+  isPastTimeSlot,
 } from "@/lib/reservation";
 
 type BookedReservation = {
@@ -117,11 +118,14 @@ export function TimeRangePicker({
 
   function getSlotState(slot: string) {
     const minutes = slotToMinutes(slot);
+    const isPast = isPastTimeSlot(date, slot);
     return {
-      isBooked: bookedSlotSet.has(slot),
+      isPast,
+      isBooked: !isPast && bookedSlotSet.has(slot),
       isStart: slot === startTime,
       isEnd: slot === endTime,
       inRange:
+        !isPast &&
         startMinutes !== null &&
         endMinutes !== null &&
         minutes > startMinutes &&
@@ -144,7 +148,7 @@ export function TimeRangePicker({
       <div className="time-range-scroll" role="group" aria-label="예약 시간 선택">
         {timelineSlots.map((slot) => {
           const disabled = isSlotDisabled(slot);
-          const { isBooked, isStart, isEnd, inRange } = getSlotState(slot);
+          const { isPast, isBooked, isStart, isEnd, inRange } = getSlotState(slot);
 
           return (
             <button
@@ -152,6 +156,7 @@ export function TimeRangePicker({
               type="button"
               className={[
                 "time-range-btn",
+                isPast ? "time-range-btn-past" : "",
                 isBooked ? "time-range-btn-booked" : "",
                 isStart ? "time-range-btn-start" : "",
                 isEnd ? "time-range-btn-end" : "",
@@ -162,7 +167,13 @@ export function TimeRangePicker({
               onClick={() => handleSlotClick(slot)}
               disabled={disabled}
               aria-pressed={isStart || isEnd}
-              title={isBooked ? "이미 예약된 시간입니다" : undefined}
+              title={
+                isPast
+                  ? "지난 시간입니다"
+                  : isBooked
+                    ? "이미 예약된 시간입니다"
+                    : undefined
+              }
             >
               {slot}
             </button>
@@ -172,7 +183,7 @@ export function TimeRangePicker({
 
       <p className="time-range-hint">
         하나의 타임라인에서 시작 시간을 클릭한 뒤 종료 시간을 클릭하세요 · 06:00~22:00
-        {bookedSlots.length > 0 ? " · 붉은색은 예약 불가" : ""}
+        {" · 회색은 지난 시간 · 붉은색은 예약 불가"}
       </p>
     </div>
   );
