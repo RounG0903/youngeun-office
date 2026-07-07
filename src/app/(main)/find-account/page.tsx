@@ -64,7 +64,7 @@ export default function FindAccountPage() {
 
   return (
     <div className="ig-auth-page">
-      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+      <h1 className="ig-auth-logo ig-logo-text">Youngeun Office</h1>
       <div className="ig-auth-card">
         <h2 className="mb-4 text-center text-lg font-semibold">계정 찾기</h2>
         <p className="mb-4 text-center text-sm text-[var(--muted)]">

@@ -9,7 +9,7 @@ export async function Header() {
     return (
       <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white">
         <div className="mx-auto flex max-w-[935px] items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className="ig-gradient-text text-xl font-bold tracking-tight">
+          <Link href="/" className="ig-logo-text text-xl">
             Youngeun Office
           </Link>
           <nav className="flex shrink-0 items-center gap-2 text-sm">
@@ -40,7 +40,7 @@ export async function Header() {
 
       <header className="ig-mobile-header relative lg:hidden">
         <span className="w-10" aria-hidden />
-        <Link href="/reservations" className="ig-mobile-header-logo ig-gradient-text">
+        <Link href="/reservations" className="ig-mobile-header-logo ig-logo-text">
           Youngeun Office
         </Link>
         <Link href="/reservations/new" className="ig-mobile-header-action" aria-label="새 예약">

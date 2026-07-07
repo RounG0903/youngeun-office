@@ -44,7 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold ig-gradient-text">관리자</p>
+            <p className="text-sm font-semibold text-[var(--foreground)]">관리자</p>
             <h1 className="text-2xl font-bold">Youngeun Office 관리</h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
               {displayName} · {getRoleLabel(session.role)}

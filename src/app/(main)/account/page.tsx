@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -179,10 +180,11 @@ export default function AccountPage() {
             {(displayName || name || "?").charAt(0).toUpperCase()}
           </div>
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="ig-profile-name">{displayName || name || "프로필"}</h1>
           <p className="ig-profile-sub">계정 설정</p>
         </div>
+        <LogoutButton className="shrink-0" />
       </header>
 
       {message ? <div className="alert alert-success mx-4 mb-4">{message}</div> : null}

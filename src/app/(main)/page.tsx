@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="ig-auth-page">
-      <h1 className="ig-auth-logo ig-gradient-text">Youngeun Office</h1>
+      <h1 className="ig-auth-logo ig-logo-text">Youngeun Office</h1>
 
       <div className="ig-auth-card text-center">
         <p className="text-sm text-[var(--muted)] leading-relaxed">
