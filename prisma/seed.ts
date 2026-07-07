@@ -71,7 +71,11 @@ async function main() {
 
   const legacyAdmin = await prisma.user.findUnique({ where: { name: "admin" } });
   if (legacyAdmin?.role === "ADMIN") {
-    await prisma.user.delete({ where: { name: "admin" } });
+    try {
+      await prisma.user.delete({ where: { name: "admin" } });
+    } catch (error) {
+      console.warn("Legacy admin account delete skipped:", error);
+    }
   }
 
   await prisma.systemConfig.upsert({
