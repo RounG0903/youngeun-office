@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { QrCheckinScanner } from "@/components/QrCheckinScanner";
 import { RoomIcon } from "@/components/RoomIcon";
 import {
+  formatAppTime,
   formatTimeRange,
   getReservationStatusLabel,
   isWithinCheckinWindow,
@@ -157,12 +158,7 @@ export default function ReservationDetailPage() {
       <div className="card border-t-0 p-5">
         {reservation.checkedInAt ? (
           <div className="alert alert-success">
-            체크인 완료:{" "}
-            {new Intl.DateTimeFormat("ko-KR", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }).format(new Date(reservation.checkedInAt))}
+            체크인 완료: {formatAppTime(new Date(reservation.checkedInAt))}
           </div>
         ) : showCheckinScanner ? (
           <QrCheckinScanner

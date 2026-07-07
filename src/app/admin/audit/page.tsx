@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getAuditActionLabel } from "@/lib/audit-labels";
+import { formatDateTime } from "@/lib/reservation";
 
 type AuditLog = {
   id: string;
@@ -56,7 +57,7 @@ export default function AdminAuditPage() {
             {logs.map((log) => (
               <tr key={log.id} className="border-b border-[var(--border)] align-top">
                 <td className="py-3 pr-3 whitespace-nowrap">
-                  {new Date(log.createdAt).toLocaleString("ko-KR")}
+                  {formatDateTime(new Date(log.createdAt))}
                 </td>
                 <td className="py-3 pr-3">{log.actorName}</td>
                 <td className="py-3 pr-3">{log.actorRole}</td>

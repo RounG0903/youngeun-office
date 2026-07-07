@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserSession } from "@/lib/admin";
-import { getDayBounds } from "@/lib/reservation";
+import { getDayBounds, formatAppTimeRangeLabel } from "@/lib/reservation";
 import { formatUserDisplayName } from "@/lib/user-number";
 
 export async function GET(request: Request) {
@@ -31,12 +31,6 @@ export async function GET(request: Request) {
     }),
   ]);
 
-  const timeFmt = new Intl.DateTimeFormat("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-
   return NextResponse.json({
     date,
     rooms: rooms.map((room) => {
@@ -50,7 +44,7 @@ export async function GET(request: Request) {
               : reservation.user.name;
           return {
             id: reservation.id,
-            timeLabel: `${timeFmt.format(reservation.startTime)} ~ ${timeFmt.format(reservation.endTime)}`,
+            timeLabel: formatAppTimeRangeLabel(reservation.startTime, reservation.endTime),
             isMine,
             title: isMine ? reservation.title : null,
             userDisplayName,
