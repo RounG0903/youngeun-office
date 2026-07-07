@@ -42,7 +42,10 @@ export async function assignUserNumbersToExistingUsers(): Promise<void> {
       userNumber: null,
     },
     orderBy: { createdAt: "asc" },
+    select: { id: true },
   });
+
+  if (users.length === 0) return;
 
   const taken = new Set(
     (
@@ -54,16 +57,21 @@ export async function assignUserNumbersToExistingUsers(): Promise<void> {
   );
 
   let candidate = 1;
+  const updates: { id: string; userNumber: number }[] = [];
+
   for (const user of users) {
     while (taken.has(candidate) || candidate === SERVER_ADMIN_USER_NUMBER) {
       candidate++;
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { userNumber: candidate },
-    });
+    updates.push({ id: user.id, userNumber: candidate });
     taken.add(candidate);
     candidate++;
   }
+
+  await prisma.$transaction(
+    updates.map(({ id, userNumber }) =>
+      prisma.user.update({ where: { id }, data: { userNumber } }),
+    ),
+  );
 }
