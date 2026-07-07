@@ -7,7 +7,7 @@ export async function Header() {
 
   if (!session || session.role !== "USER") {
     return (
-      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white">
+      <header className="ig-guest-header sticky top-0 z-40 border-b border-[var(--border)]">
         <div className="mx-auto flex max-w-[935px] items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="ig-logo-text text-xl">
             Youngeun Office

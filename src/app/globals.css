@@ -25,6 +25,9 @@
   --surface-active: #efefef;
   --input-bg: #ffffff;
   --overlay: rgba(0, 0, 0, 0.45);
+  --pill-active-bg: var(--foreground);
+  --pill-active-fg: #ffffff;
+  --pill-active-border: var(--foreground);
 }
 
 [data-theme="dark"] {
@@ -44,6 +47,9 @@
   --surface-active: #262626;
   --input-bg: #1a1a1a;
   --overlay: rgba(0, 0, 0, 0.7);
+  --pill-active-bg: #f5f5f5;
+  --pill-active-fg: #000000;
+  --pill-active-border: #f5f5f5;
 }
 
 * {
@@ -641,6 +647,11 @@ textarea {
   color: var(--foreground);
 }
 
+/* Guest header (login/register) */
+.ig-guest-header {
+  background: var(--card);
+}
+
 /* Mobile header */
 .ig-mobile-header {
   display: flex;
@@ -793,9 +804,9 @@ textarea {
 }
 
 .ig-pill-active {
-  background: var(--foreground);
-  border-color: var(--foreground);
-  color: white;
+  background: var(--pill-active-bg);
+  border-color: var(--pill-active-border);
+  color: var(--pill-active-fg);
 }
 
 /* Auth pages */
