@@ -5,6 +5,7 @@ import { getCheckinUrl } from "@/lib/session";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 import { requireTabletSession } from "@/lib/admin";
 import { isRoomCheckinEnabled } from "@/lib/settings";
+import { formatUserDisplayName } from "@/lib/user-number";
 
 export async function GET(request: Request) {
   const auth = await requireTabletSession();
@@ -72,7 +73,10 @@ export async function GET(request: Request) {
       id: reservation.id,
       title: reservation.title,
       roomName: reservation.room.name,
-      userName: reservation.user.name,
+      userName:
+        reservation.user.userNumber != null
+          ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
+          : reservation.user.name,
       startTime: reservation.startTime,
       endTime: reservation.endTime,
     },

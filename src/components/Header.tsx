@@ -35,6 +35,11 @@ export async function Header() {
   await ensurePenaltiesProcessed(session.id);
   const user = await prisma.user.findUnique({ where: { id: session.id } });
   const penaltyUntil = user?.penaltyUntil ?? null;
+  const { formatUserDisplayName } = await import("@/lib/user-number");
+  const displayName =
+    user?.userNumber != null
+      ? formatUserDisplayName(user.name, user.userNumber)
+      : session.name;
 
   return (
     <header className="border-b border-[var(--border)] bg-white/90 backdrop-blur">
@@ -52,7 +57,7 @@ export async function Header() {
           <span className="truncate text-xs text-[var(--muted)] sm:text-sm">교육관 회의실 예약</span>
         </Link>
 
-        <UserNav userName={session.name} />
+        <UserNav userName={displayName} />
       </div>
     </header>
   );

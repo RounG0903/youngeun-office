@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { requireAdminPermission } from "@/lib/admin";
 import { hashPin } from "@/lib/auth";
+import { getNextUserNumber } from "@/lib/user-number";
 
 const DEFAULT_TABLET_PIN = "0000";
 
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
       pinPlain: DEFAULT_TABLET_PIN,
       role: "TABLET",
       roomId: room.id,
+      userNumber: await getNextUserNumber(),
     },
     include: { room: true },
   });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPin, setSession, buildSessionUser } from "@/lib/auth";
+import { getNextUserNumber } from "@/lib/user-number";
 import { registerSchema } from "@/lib/validation";
 
 const VERIFICATION_WINDOW_MS = 30 * 60_000;
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       pinHash: await hashPin(pin),
       pinPlain: pin,
       role: "USER",
+      userNumber: await getNextUserNumber(),
     },
   });
 

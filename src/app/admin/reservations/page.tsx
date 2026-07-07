@@ -14,7 +14,6 @@ import {
   getReservationStatusLabel,
 } from "@/lib/reservation";
 
-type User = { id: string; name: string };
 type Room = { id: string; name: string; color: string };
 type Reservation = {
   id: string;
@@ -23,7 +22,7 @@ type Reservation = {
   endTime: string;
   status: string;
   room: { name: string; color: string };
-  user: { name: string };
+  user: { displayName: string };
 };
 
 export default function AdminReservationsPage() {
@@ -31,10 +30,9 @@ export default function AdminReservationsPage() {
   const closeTime = `${String(CLOSE_HOUR).padStart(2, "0")}:00`;
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [adminDisplayName, setAdminDisplayName] = useState("");
   const [title, setTitle] = useState("");
-  const [userId, setUserId] = useState("");
   const [roomId, setRoomId] = useState("");
   const [date, setDate] = useState(getMinSelectableDate());
   const [startTime, setStartTime] = useState("");
@@ -101,15 +99,15 @@ export default function AdminReservationsPage() {
   }, [roomId, date]);
 
   async function load() {
-    const [resRes, usersRes, roomsRes] = await Promise.all([
+    const [resRes, roomsRes, meRes] = await Promise.all([
       fetch("/api/admin/reservations"),
-      fetch("/api/admin/users"),
       fetch("/api/admin/rooms"),
+      fetch("/api/auth/me"),
     ]);
-    const [resData, usersData, roomsData] = await Promise.all([
+    const [resData, roomsData, meData] = await Promise.all([
       resRes.json(),
-      usersRes.json(),
       roomsRes.json(),
+      meRes.json(),
     ]);
     setLoading(false);
     if (!resRes.ok) {
@@ -117,9 +115,8 @@ export default function AdminReservationsPage() {
       return;
     }
     setReservations(resData.reservations ?? []);
-    setUsers(usersData.users ?? []);
     setRooms(roomsData.rooms ?? []);
-    if (usersData.users?.[0]) setUserId(usersData.users[0].id);
+    if (meData.user?.displayName) setAdminDisplayName(meData.user.displayName);
     if (roomsData.rooms?.[0]) setRoomId(roomsData.rooms[0].id);
   }
 
@@ -134,7 +131,7 @@ export default function AdminReservationsPage() {
     const res = await fetch("/api/admin/reservations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, userId, roomId, date, startTime, endTime }),
+      body: JSON.stringify({ title, roomId, date, startTime, endTime }),
     });
     const data = await res.json();
     if (!res.ok) {
@@ -166,6 +163,9 @@ export default function AdminReservationsPage() {
     <div className="space-y-6">
       <div className="card p-6">
         <h2 className="text-xl font-bold">예약 추가</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">
+          예약자: {adminDisplayName || "관리자"} (본인 계정으로 등록됩니다)
+        </p>
         <form onSubmit={handleAdd} className="mt-4 grid gap-4 md:grid-cols-2">
           <input
             value={title}
@@ -174,18 +174,6 @@ export default function AdminReservationsPage() {
             className="rounded-[10px] border border-[var(--border)] px-3 py-2 md:col-span-2"
             required
           />
-          <select
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="rounded-[10px] border border-[var(--border)] px-3 py-2"
-            required
-          >
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
           <select
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
@@ -233,7 +221,7 @@ export default function AdminReservationsPage() {
             <div key={reservation.id} className="rounded-[10px] border border-[var(--border)] p-4">
               <div className="font-semibold">{reservation.title}</div>
               <div className="mt-2 space-y-1 text-sm text-[var(--muted)]">
-                <p>회원: {reservation.user.name}</p>
+                <p>예약자: {reservation.user.displayName}</p>
                 <p className="flex items-center gap-2">
                   <RoomIcon color={reservation.room.color} size={10} />
                   {reservation.room.name}
@@ -276,7 +264,7 @@ export default function AdminReservationsPage() {
             <thead>
               <tr className="border-b border-[var(--border)] text-[var(--muted)]">
                 <th className="py-2 pr-3">제목</th>
-                <th className="py-2 pr-3">회원</th>
+                <th className="py-2 pr-3">예약자</th>
                 <th className="py-2 pr-3">회의실</th>
                 <th className="py-2 pr-3">시간</th>
                 <th className="py-2 pr-3">상태</th>
@@ -287,7 +275,7 @@ export default function AdminReservationsPage() {
               {reservations.map((reservation) => (
                 <tr key={reservation.id} className="border-b border-[var(--border)]">
                   <td className="py-3 pr-3">{reservation.title}</td>
-                  <td className="py-3 pr-3">{reservation.user.name}</td>
+                  <td className="py-3 pr-3">{reservation.user.displayName}</td>
                   <td className="py-3 pr-3">
                     <span className="inline-flex items-center gap-2">
                       <RoomIcon color={reservation.room.color} size={10} />

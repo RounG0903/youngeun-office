@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { logAdminAction } from "@/lib/audit";
 import { requireAdminPermission } from "@/lib/admin";
 import { canCancelReservation } from "@/lib/reservation";
+import { formatUserDisplayName } from "@/lib/user-number";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -44,7 +45,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
     entityId: id,
     details: {
       title: reservation.title,
-      userName: reservation.user.name,
+      userName:
+        reservation.user.userNumber != null
+          ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
+          : reservation.user.name,
       roomName: reservation.room.name,
     },
   });

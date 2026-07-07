@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getHomePathForRole, getRoleLabel } from "@/lib/roles";
+import { formatUserDisplayName } from "@/lib/user-number";
 import { LogoutButton } from "@/components/LogoutButton";
 
 const baseLinks = [
@@ -10,6 +11,7 @@ const baseLinks = [
   { href: "/admin/tablet-users", label: "태블릿 계정", desc: "회의실별 태블릿 등록 및 PIN 확인" },
   { href: "/admin/rooms", label: "회의실 관리", desc: "회의실 추가 및 삭제" },
   { href: "/admin/reservations", label: "예약 관리", desc: "예약 추가 및 삭제" },
+  { href: "/admin/calendar", label: "예약 캘린더", desc: "날짜별 회의실 예약 현황 조회" },
 ];
 
 const serverAdminLinks = [
@@ -28,9 +30,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const dbUser = await prisma.user.findUnique({
     where: { id: session.id },
-    select: { isServerAdmin: true },
+    select: { isServerAdmin: true, userNumber: true, name: true },
   });
   const isServerAdmin = dbUser?.isServerAdmin ?? session.isServerAdmin ?? false;
+  const displayName =
+    dbUser?.userNumber != null
+      ? formatUserDisplayName(dbUser.name, dbUser.userNumber)
+      : session.name;
   const links = isServerAdmin ? [...baseLinks, ...serverAdminLinks] : baseLinks;
 
   return (
@@ -41,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <p className="text-sm font-semibold text-[var(--primary)]">관리자</p>
             <h1 className="text-2xl font-bold">Youngeun Office 관리</h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              {session.name} · {getRoleLabel(session.role)}
+              {displayName} · {getRoleLabel(session.role)}
               {isServerAdmin ? " (서버 관리자)" : ""}
             </p>
           </div>

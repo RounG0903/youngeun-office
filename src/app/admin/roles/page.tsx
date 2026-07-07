@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type AdminUser = {
   id: string;
   name: string;
+  displayName: string;
   phone: string | null;
   createdAt: string;
 };
@@ -84,13 +85,13 @@ export default function AdminRolesPage() {
             {subAdmins.map((user) => (
               <li key={user.id} className="flex items-center justify-between rounded-[10px] border border-[var(--border)] px-3 py-2">
                 <div>
-                  <div className="font-medium">{user.name}</div>
+                  <div className="font-medium">{user.displayName}</div>
                   <div className="text-xs text-[var(--muted)]">{user.phone ?? "전화번호 없음"}</div>
                 </div>
                 <button
                   type="button"
                   className="btn btn-secondary px-2 py-1 text-xs text-[var(--danger)]"
-                  onClick={() => revokeSubAdmin(user.id, user.name)}
+                  onClick={() => revokeSubAdmin(user.id, user.displayName)}
                 >
                   권한 회수
                 </button>
@@ -107,13 +108,13 @@ export default function AdminRolesPage() {
             {candidates.map((user) => (
               <li key={user.id} className="flex items-center justify-between rounded-[10px] border border-[var(--border)] px-3 py-2">
                 <div>
-                  <div className="font-medium">{user.name}</div>
+                  <div className="font-medium">{user.displayName}</div>
                   <div className="text-xs text-[var(--muted)]">{user.phone ?? "전화번호 없음"}</div>
                 </div>
                 <button
                   type="button"
                   className="btn btn-primary px-2 py-1 text-xs"
-                  onClick={() => grantSubAdmin(user.id, user.name)}
+                  onClick={() => grantSubAdmin(user.id, user.displayName)}
                 >
                   부관리자 부여
                 </button>

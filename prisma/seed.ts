@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { pickRoomColorByIndex } from "../src/lib/room";
+import {
+  assignUserNumbersToExistingUsers,
+  SERVER_ADMIN_USER_NUMBER,
+} from "../src/lib/user-number";
 
 const prisma = new PrismaClient();
 
@@ -30,15 +34,24 @@ async function main() {
   const pinHash = await bcrypt.hash(adminPin, 10);
   await prisma.user.upsert({
     where: { name: "Youngeun Admin" },
-    update: { pinHash, pinPlain: adminPin, role: "ADMIN", isServerAdmin: true },
+    update: {
+      pinHash,
+      pinPlain: adminPin,
+      role: "ADMIN",
+      isServerAdmin: true,
+      userNumber: SERVER_ADMIN_USER_NUMBER,
+    },
     create: {
       name: "Youngeun Admin",
       pinHash,
       pinPlain: adminPin,
       role: "ADMIN",
       isServerAdmin: true,
+      userNumber: SERVER_ADMIN_USER_NUMBER,
     },
   });
+
+  await assignUserNumbersToExistingUsers();
 
   const legacyAdmin = await prisma.user.findUnique({ where: { name: "admin" } });
   if (legacyAdmin?.role === "ADMIN") {
