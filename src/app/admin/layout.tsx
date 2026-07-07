@@ -4,21 +4,22 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getHomePathForRole, getRoleLabel } from "@/lib/roles";
 import { formatUserDisplayName } from "@/lib/user-number";
+import { AdminNav } from "@/components/admin/AdminNav";
 import { LogoutButton } from "@/components/LogoutButton";
 
 const baseLinks = [
-  { href: "/admin/users", label: "회원 관리", desc: "회원 삭제 및 패널티 관리" },
-  { href: "/admin/tablet-users", label: "태블릿 계정", desc: "회의실별 태블릿 등록 및 PIN 확인" },
-  { href: "/admin/rooms", label: "회의실 관리", desc: "회의실 추가 및 삭제" },
-  { href: "/admin/reservations", label: "예약 관리", desc: "예약 추가 및 삭제" },
-  { href: "/admin/calendar", label: "예약 캘린더", desc: "날짜별 회의실 예약 현황 조회" },
+  { href: "/admin/users", label: "회원" },
+  { href: "/admin/tablet-users", label: "태블릿" },
+  { href: "/admin/rooms", label: "회의실" },
+  { href: "/admin/reservations", label: "예약" },
+  { href: "/admin/calendar", label: "캘린더" },
 ];
 
 const serverAdminLinks = [
-  { href: "/admin/settings", label: "계정 설정", desc: "체크인 활성화 · 관리자 PIN 변경" },
-  { href: "/admin/audit", label: "거래 히스토리", desc: "관리자 조작 이력 조회" },
-  { href: "/admin/roles", label: "부관리자 관리", desc: "부관리자 권한 부여 및 회수" },
-  { href: "/admin/database", label: "DB 관리", desc: "데이터베이스 조회 및 수정" },
+  { href: "/admin/settings", label: "설정" },
+  { href: "/admin/audit", label: "감사" },
+  { href: "/admin/roles", label: "권한" },
+  { href: "/admin/database", label: "DB" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -40,31 +41,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const links = isServerAdmin ? [...baseLinks, ...serverAdminLinks] : baseLinks;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-8">
-      <div className="space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-[var(--foreground)]">관리자</p>
-            <h1 className="text-2xl font-bold">Youngeun Office 관리</h1>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              {displayName} · {getRoleLabel(session.role)}
-              {isServerAdmin ? " (서버 관리자)" : ""}
-            </p>
-          </div>
-          <LogoutButton />
+    <main className="admin-shell">
+      <header className="admin-header">
+        <div className="admin-header-main">
+          <Link href="/admin/users" className="admin-brand">
+            Youngeun Office
+          </Link>
+          <p className="admin-subtitle">
+            {displayName} · {getRoleLabel(session.role)}
+            {isServerAdmin ? " · 서버 관리자" : ""}
+          </p>
         </div>
+        <LogoutButton className="shrink-0" />
+      </header>
 
-        <nav className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} className="card card-hover p-4 transition">
-              <div className="font-semibold">{link.label}</div>
-              <div className="mt-1 text-sm text-[var(--muted)]">{link.desc}</div>
-            </Link>
-          ))}
-        </nav>
+      <AdminNav links={links} />
 
-        {children}
-      </div>
+      <div className="admin-content">{children}</div>
     </main>
   );
 }

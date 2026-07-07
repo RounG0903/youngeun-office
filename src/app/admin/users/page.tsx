@@ -69,9 +69,6 @@ export default function AdminUsersPage() {
   return (
     <div className="card p-6">
       <h2 className="text-xl font-bold">회원 관리</h2>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        일반 사용자(USER)만 표시됩니다. 체크인 면제 시 노쇼 패널티가 적용되지 않습니다.
-      </p>
 
       {message ? <div className="alert alert-success mt-4">{message}</div> : null}
       {error ? <div className="alert alert-error mt-4">{error}</div> : null}

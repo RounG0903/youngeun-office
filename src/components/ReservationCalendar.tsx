@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { RoomIcon } from "@/components/RoomIcon";
+import { UserAvatar } from "@/components/UserAvatar";
 import { formatDateLabel, shiftDate } from "@/lib/calendar";
 import { getMinSelectableDate } from "@/lib/reservation";
 
@@ -23,13 +24,11 @@ type CalendarRoom = {
 
 type ReservationCalendarProps = {
   apiPath: string;
-  showBooker?: boolean;
 };
 
-export function ReservationCalendar({ apiPath, showBooker = false }: ReservationCalendarProps) {
+export function ReservationCalendar({ apiPath }: ReservationCalendarProps) {
   const [date, setDate] = useState(getMinSelectableDate());
   const [rooms, setRooms] = useState<CalendarRoom[]>([]);
-  const [totalReservations, setTotalReservations] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,28 +44,14 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "불러오기 실패");
         setRooms(data.rooms ?? []);
-        setTotalReservations(data.totalReservations ?? 0);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "불러오기 실패"))
       .finally(() => setLoading(false));
   }, [apiPath, date]);
 
-  function getReservationSummary(reservation: CalendarReservation): string {
-    if (showBooker) {
-      return `${reservation.timeLabel} · ${reservation.title}`;
-    }
-    if (reservation.isMine && reservation.title) {
-      return `${reservation.timeLabel} · ${reservation.title}`;
-    }
-    return `${reservation.timeLabel} · 예약됨`;
-  }
-
-  function getReservationDetail(reservation: CalendarReservation): string {
-    if (showBooker && reservation.userDisplayName) {
-      return `예약자: ${reservation.userDisplayName}`;
-    }
-    if (reservation.isMine) {
-      return "내 예약";
+  function getReservationTitle(reservation: CalendarReservation): string {
+    if (reservation.title) {
+      return reservation.title;
     }
     return "예약됨";
   }
@@ -76,7 +61,7 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
       <div className="card p-4 sm:p-5">
         <h2 className="text-lg font-semibold">예약 캘린더</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          날짜별 회의실 예약 현황을 펼쳐서 확인할 수 있습니다.
+          날짜별 회의실 예약 현황을 확인할 수 있습니다.
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -117,24 +102,6 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
         </div>
       </details>
 
-      <details className="card p-6" open>
-        <summary className="cursor-pointer text-lg font-semibold">
-          일자 요약 · 총 {totalReservations}건
-        </summary>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {rooms.map((room) => (
-            <div
-              key={room.id}
-              className="flex items-center gap-2 rounded-[10px] border border-[var(--border)] px-3 py-2 text-sm"
-            >
-              <RoomIcon color={room.color} size={10} />
-              <span className="font-medium">{room.name}</span>
-              <span className="text-[var(--muted)]">{room.reservations.length}건</span>
-            </div>
-          ))}
-        </div>
-      </details>
-
       {error ? <div className="alert alert-error">{error}</div> : null}
       {loading ? <p className="text-[var(--muted)]">캘린더를 불러오는 중...</p> : null}
 
@@ -158,19 +125,30 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
               ) : (
                 <ul className="mt-4 space-y-2">
                   {room.reservations.map((reservation) => (
-                    <li key={reservation.id}>
-                      <details
-                        className={`rounded-[10px] border px-3 py-2 ${
-                          reservation.isMine ? "highlight-mine" : "border-[var(--border)]"
-                        }`}
-                      >
-                        <summary className="cursor-pointer text-sm font-medium">
-                          {getReservationSummary(reservation)}
-                        </summary>
-                        <p className="mt-2 text-sm text-[var(--muted)]">
-                          {getReservationDetail(reservation)}
-                        </p>
-                      </details>
+                    <li
+                      key={reservation.id}
+                      className={`calendar-reservation-item ${
+                        reservation.isMine ? "highlight-mine" : ""
+                      }`}
+                    >
+                      <div className="calendar-reservation-main">
+                        {reservation.userDisplayName ? (
+                          <UserAvatar name={reservation.userDisplayName} />
+                        ) : null}
+                        <div className="min-w-0 flex-1">
+                          <div className="calendar-reservation-title">
+                            {reservation.timeLabel} · {getReservationTitle(reservation)}
+                          </div>
+                          {reservation.userDisplayName ? (
+                            <div className="calendar-reservation-user">
+                              {reservation.userDisplayName}
+                              {reservation.isMine ? (
+                                <span className="calendar-reservation-mine">내 예약</span>
+                              ) : null}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
                     </li>
                   ))}
                 </ul>
