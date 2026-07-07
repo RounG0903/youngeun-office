@@ -1,11 +1,14 @@
 #!/bin/sh
 set -e
 
-echo "Applying database schema..."
+echo "[entrypoint] Applying database schema..."
 npx prisma db push
 
-echo "Ensuring seed data..."
-npx prisma db seed
+echo "[entrypoint] Ensuring seed data..."
+if ! npx prisma db seed; then
+  echo "[entrypoint] Seed failed" >&2
+  exit 1
+fi
 
-echo "Starting Youngeun Office..."
+echo "[entrypoint] Starting Youngeun Office..."
 exec npm start

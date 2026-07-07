@@ -1,10 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { pickRoomColorByIndex } from "../src/lib/room";
 import {
   assignUserNumbersToExistingUsers,
   SERVER_ADMIN_USER_NUMBER,
 } from "./assign-user-numbers";
+
+const ROOM_COLOR_PALETTE = [
+  "#3B82F6",
+  "#EF4444",
+  "#10B981",
+  "#F59E0B",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#84CC16",
+  "#F97316",
+  "#6366F1",
+];
+
+function pickRoomColorByIndex(index: number): string {
+  return ROOM_COLOR_PALETTE[index % ROOM_COLOR_PALETTE.length];
+}
 
 const prisma = new PrismaClient();
 
