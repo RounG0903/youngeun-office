@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import { hashPin } from "@/lib/auth";
 
 type RouteContext = {
@@ -8,7 +9,7 @@ type RouteContext = {
 };
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("tablet");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -23,11 +24,22 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   await prisma.user.delete({ where: { id } });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "tablet.delete",
+    entityType: "User",
+    entityId: id,
+    details: { targetName: user.name },
+  });
+
   return NextResponse.json({ message: "태블릿 계정이 삭제되었습니다." });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("tablet");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -49,6 +61,16 @@ export async function PATCH(request: Request, context: RouteContext) {
       pinHash: await hashPin(pin),
       pinPlain: pin,
     },
+  });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "tablet.update_pin",
+    entityType: "User",
+    entityId: id,
+    details: { targetName: user.name },
   });
 
   return NextResponse.json({

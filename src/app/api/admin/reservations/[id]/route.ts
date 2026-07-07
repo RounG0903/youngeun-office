@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import { canCancelReservation } from "@/lib/reservation";
 
 type RouteContext = {
@@ -8,11 +9,14 @@ type RouteContext = {
 };
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("reservations");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
-  const reservation = await prisma.reservation.findUnique({ where: { id } });
+  const reservation = await prisma.reservation.findUnique({
+    where: { id },
+    include: { user: true, room: true },
+  });
 
   if (!reservation) {
     return NextResponse.json({ error: "예약을 찾을 수 없습니다." }, { status: 404 });
@@ -28,6 +32,20 @@ export async function DELETE(_request: Request, context: RouteContext) {
     data: {
       status: "CANCELLED",
       cancelledAt: now,
+    },
+  });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "reservation.cancel",
+    entityType: "Reservation",
+    entityId: id,
+    details: {
+      title: reservation.title,
+      userName: reservation.user.name,
+      roomName: reservation.room.name,
     },
   });
 

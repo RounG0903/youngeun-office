@@ -11,6 +11,7 @@ enum UserRole {
   USER
   TABLET
   ADMIN
+  SUB_ADMIN
 }
 
 model SystemConfig {
@@ -25,11 +26,13 @@ model User {
   pinHash          String
   pinPlain         String?
   role             UserRole      @default(USER)
+  isServerAdmin    Boolean       @default(false)
   roomId           String?       @unique
   room             MeetingRoom?  @relation(fields: [roomId], references: [id], onDelete: SetNull)
   checkinRequired  Boolean       @default(true)
   penaltyUntil     DateTime?
   reservations     Reservation[]
+  auditLogs        AuditLog[]    @relation("AuditActor")
   createdAt        DateTime      @default(now())
 }
 
@@ -77,4 +80,21 @@ model Reservation {
   @@index([roomId, startTime, endTime])
   @@index([userId, startTime])
   @@index([status, endTime])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation("AuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  actorName  String
+  actorRole  String
+  action     String
+  entityType String?
+  entityId   String?
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@index([action])
 }

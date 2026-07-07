@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import { hashPin } from "@/lib/auth";
 
 const DEFAULT_TABLET_PIN = "0000";
 
 export async function GET() {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("tablet");
   if (auth.error) return auth.error;
 
   const users = await prisma.user.findMany({
@@ -28,7 +29,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("tablet");
   if (auth.error) return auth.error;
 
   const body = await request.json();
@@ -65,6 +66,16 @@ export async function POST(request: Request) {
       roomId: room.id,
     },
     include: { room: true },
+  });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "tablet.create",
+    entityType: "User",
+    entityId: user.id,
+    details: { roomName: room.name },
   });
 
   return NextResponse.json(

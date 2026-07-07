@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("rooms");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -34,5 +35,16 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   await prisma.user.deleteMany({ where: { roomId: id, role: "TABLET" } });
   await prisma.meetingRoom.delete({ where: { id } });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "room.delete",
+    entityType: "MeetingRoom",
+    entityId: id,
+    details: { name: room.name },
+  });
+
   return NextResponse.json({ message: "회의실이 삭제되었습니다." });
 }

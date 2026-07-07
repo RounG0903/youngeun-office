@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import { applyPenalty } from "@/lib/penalty";
 
 type RouteContext = {
@@ -8,7 +9,7 @@ type RouteContext = {
 };
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("users");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -23,11 +24,22 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   await prisma.user.delete({ where: { id } });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "user.delete",
+    entityType: "User",
+    entityId: id,
+    details: { targetName: user.name },
+  });
+
   return NextResponse.json({ message: "회원이 삭제되었습니다." });
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("users");
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -48,6 +60,17 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!penaltyUntil) {
       return NextResponse.json({ error: "패널티를 적용할 수 없는 회원입니다." }, { status: 400 });
     }
+
+    await logAdminAction({
+      actorId: auth.session.id,
+      actorName: auth.session.name,
+      actorRole: auth.session.role,
+      action: "user.apply_penalty",
+      entityType: "User",
+      entityId: id,
+      details: { targetName: user.name, penaltyUntil },
+    });
+
     return NextResponse.json({ message: "패널티가 적용되었습니다.", penaltyUntil });
   }
 
@@ -56,6 +79,17 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id },
       data: { penaltyUntil: null },
     });
+
+    await logAdminAction({
+      actorId: auth.session.id,
+      actorName: auth.session.name,
+      actorRole: auth.session.role,
+      action: "user.clear_penalty",
+      entityType: "User",
+      entityId: id,
+      details: { targetName: user.name },
+    });
+
     return NextResponse.json({ message: "패널티가 해제되었습니다." });
   }
 
@@ -64,6 +98,20 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id },
       data: { checkinRequired: !user.checkinRequired },
     });
+
+    await logAdminAction({
+      actorId: auth.session.id,
+      actorName: auth.session.name,
+      actorRole: auth.session.role,
+      action: "user.toggle_checkin",
+      entityType: "User",
+      entityId: id,
+      details: {
+        targetName: user.name,
+        checkinRequired: updated.checkinRequired,
+      },
+    });
+
     return NextResponse.json({
       message: updated.checkinRequired
         ? "체크인이 필요하도록 설정되었습니다."

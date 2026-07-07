@@ -33,7 +33,11 @@ export async function POST(request: Request) {
 
   const nextPath = typeof body.next === "string" ? body.next : null;
   const redirectTo =
-    nextPath && nextPath.startsWith("/") && isRoleAllowedOnPath(user.role, nextPath)
+    nextPath && nextPath.startsWith("/") && isRoleAllowedOnPath(
+      user.role,
+      nextPath,
+      user.isServerAdmin,
+    )
       ? nextPath
       : getHomePathForRole(user.role);
 
@@ -42,6 +46,7 @@ export async function POST(request: Request) {
       id: user.id,
       name: user.name,
       role: user.role,
+      isServerAdmin: user.isServerAdmin,
     },
     redirectTo,
   });

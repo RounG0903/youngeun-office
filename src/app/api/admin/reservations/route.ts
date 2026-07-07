@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import {
   combineDateAndTime,
   isFutureReservation,
@@ -10,7 +11,7 @@ import {
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 
 export async function GET() {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("reservations");
   if (auth.error) return auth.error;
 
   await ensurePenaltiesProcessed();
@@ -28,7 +29,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("reservations");
   if (auth.error) return auth.error;
 
   const body = await request.json();
@@ -93,6 +94,22 @@ export async function POST(request: Request) {
     include: {
       room: true,
       user: true,
+    },
+  });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "reservation.create",
+    entityType: "Reservation",
+    entityId: reservation.id,
+    details: {
+      title: reservation.title,
+      userName: reservation.user.name,
+      roomName: reservation.room.name,
+      startTime: reservation.startTime,
+      endTime: reservation.endTime,
     },
   });
 

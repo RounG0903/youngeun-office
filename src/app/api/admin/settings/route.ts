@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireAdminSession } from "@/lib/admin";
+import { requireAdminPermission } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
 import { getSystemConfig, setTabletCheckinEnabled } from "@/lib/settings";
 
 export async function GET() {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("settings");
   if (auth.error) return auth.error;
 
   const config = await getSystemConfig();
@@ -13,7 +14,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("settings");
   if (auth.error) return auth.error;
 
   const body = await request.json();
@@ -22,6 +23,17 @@ export async function PATCH(request: Request) {
   }
 
   const config = await setTabletCheckinEnabled(body.tabletCheckinEnabled);
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "settings.update_checkin",
+    entityType: "SystemConfig",
+    entityId: "default",
+    details: { tabletCheckinEnabled: config.tabletCheckinEnabled },
+  });
+
   return NextResponse.json({
     message: config.tabletCheckinEnabled
       ? "태블릿 체크인이 활성화되었습니다."

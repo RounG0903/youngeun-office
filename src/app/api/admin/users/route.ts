@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { requireAdminPermission } from "@/lib/admin";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 
 export async function GET() {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("users");
   if (auth.error) return auth.error;
 
   await ensurePenaltiesProcessed();
 
   const users = await prisma.user.findMany({
-    where: { role: { notIn: ["ADMIN", "TABLET"] } },
+    where: { role: "USER" },
     include: {
       _count: { select: { reservations: true } },
     },

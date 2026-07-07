@@ -7,6 +7,7 @@ export type SessionUser = {
   id: string;
   name: string;
   role: UserRole;
+  isServerAdmin: boolean;
 };
 
 function getSecret(): string {
@@ -100,11 +101,13 @@ export function buildSessionUser(user: {
   id: string;
   name: string;
   role: UserRole;
+  isServerAdmin?: boolean;
 }): SessionUser {
   return {
     id: user.id,
     name: user.name,
     role: user.role,
+    isServerAdmin: user.isServerAdmin ?? false,
   };
 }
 

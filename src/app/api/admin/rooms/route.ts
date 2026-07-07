@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminSession } from "@/lib/admin";
+import { logAdminAction } from "@/lib/audit";
+import { requireAdminPermission } from "@/lib/admin";
 import { isTabletCheckinEnabled } from "@/lib/settings";
 
 export async function GET() {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("rooms");
   if (auth.error) return auth.error;
 
   const rooms = await prisma.meetingRoom.findMany({
@@ -29,7 +30,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireAdminSession();
+  const auth = await requireAdminPermission("rooms");
   if (auth.error) return auth.error;
 
   const body = await request.json();
@@ -45,5 +46,16 @@ export async function POST(request: Request) {
   }
 
   const room = await prisma.meetingRoom.create({ data: { name } });
+
+  await logAdminAction({
+    actorId: auth.session.id,
+    actorName: auth.session.name,
+    actorRole: auth.session.role,
+    action: "room.create",
+    entityType: "MeetingRoom",
+    entityId: room.id,
+    details: { name },
+  });
+
   return NextResponse.json({ room }, { status: 201 });
 }

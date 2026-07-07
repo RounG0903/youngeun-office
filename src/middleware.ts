@@ -45,7 +45,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (session && isProtectedPath(pathname) && !isRoleAllowedOnPath(session.role, pathname)) {
+  if (session && isProtectedPath(pathname) && !isRoleAllowedOnPath(
+    session.role,
+    pathname,
+    session.isServerAdmin ?? false,
+  )) {
     return NextResponse.redirect(new URL(getHomePathForRole(session.role), request.url));
   }
 

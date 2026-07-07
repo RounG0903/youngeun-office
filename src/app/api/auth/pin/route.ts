@@ -12,7 +12,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
-  if (session.role !== "USER" && session.role !== "ADMIN") {
+  if (session.role !== "USER" && session.role !== "ADMIN" && session.role !== "SUB_ADMIN") {
     return NextResponse.json({ error: "PIN을 변경할 수 없는 계정입니다." }, { status: 403 });
   }
 
@@ -63,9 +63,21 @@ export async function PATCH(request: Request) {
     where: { id: user.id },
     data: {
       pinHash: await hashPin(newPin),
-      pinPlain: newPin,
+      pinPlain: session.role === "USER" ? null : newPin,
     },
   });
+
+  if (session.role === "ADMIN" || session.role === "SUB_ADMIN") {
+    const { logAdminAction } = await import("@/lib/audit");
+    await logAdminAction({
+      actorId: session.id,
+      actorName: session.name,
+      actorRole: session.role,
+      action: "admin.update_pin",
+      entityType: "User",
+      entityId: session.id,
+    });
+  }
 
   return NextResponse.json({ message: "PIN이 변경되었습니다." });
 }
