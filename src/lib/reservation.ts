@@ -189,6 +189,26 @@ export function doesRangeOverlapBooked(
   });
 }
 
+export function getAutoEndBeforeBooked(
+  startTime: string,
+  slots: string[] = generateTimeSlots(),
+  bookedSlots: string[] = [],
+  closeTime = `${String(CLOSE_HOUR).padStart(2, "0")}:00`,
+): string | null {
+  const bookedSet = new Set(bookedSlots);
+  const startMin = slotToMinutesValue(startTime);
+
+  for (const slot of slots) {
+    const slotMin = slotToMinutesValue(slot);
+    if (slotMin > startMin && bookedSet.has(slot)) {
+      return slot;
+    }
+  }
+
+  const nextSlot = slots.find((slot) => slotToMinutesValue(slot) > startMin);
+  return nextSlot ?? closeTime;
+}
+
 export function getDayBounds(date: string): { dayStart: Date; dayEnd: Date } {
   const [year, month, day] = date.split("-").map(Number);
   const dayStart = new Date(year, month - 1, day, 0, 0, 0, 0);

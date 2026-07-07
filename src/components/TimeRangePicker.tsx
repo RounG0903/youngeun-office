@@ -4,6 +4,7 @@ import {
   doesRangeOverlapBooked,
   filterPastTimeSlots,
   generateTimeSlots,
+  getAutoEndBeforeBooked,
   isPastTimeSlot,
 } from "@/lib/reservation";
 
@@ -100,6 +101,16 @@ export function TimeRangePicker({
     const startMin = slotToMinutes(startTime);
 
     if (!endTime) {
+      if (slot === startTime) {
+        const autoEnd = getAutoEndBeforeBooked(startTime, allSlots, bookedSlots, CLOSE_TIME);
+        if (
+          autoEnd &&
+          !doesRangeOverlapBooked(startTime, autoEnd, parsedReservations)
+        ) {
+          onEndChange(autoEnd);
+        }
+        return;
+      }
       if (minutes > startMin) {
         onEndChange(slot);
       } else if (canBeStart) {
@@ -172,7 +183,9 @@ export function TimeRangePicker({
                   ? "지난 시간입니다"
                   : isBooked
                     ? "이미 예약된 시간입니다"
-                    : undefined
+                    : isStart && !endTime
+                      ? "다시 눌러 다음 예약 직전까지 선택"
+                      : undefined
               }
             >
               {slot}
@@ -182,8 +195,8 @@ export function TimeRangePicker({
       </div>
 
       <p className="time-range-hint">
-        하나의 타임라인에서 시작 시간을 클릭한 뒤 종료 시간을 클릭하세요 · 06:00~22:00
-        {" · 회색은 지난 시간 · 붉은색은 예약 불가"}
+        시작 시간을 클릭한 뒤 종료 시간을 클릭하세요 · 같은 시작 시간을 다시 누르면 다음
+        예약 직전까지 자동 선택 · 06:00~22:00 · 회색은 지난 시간 · 붉은색은 예약 불가
       </p>
     </div>
   );
