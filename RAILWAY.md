@@ -61,6 +61,7 @@ DB 파일이 재배포 후에도 유지되려면 **볼륨**이 필요합니다.
 |------|-----|
 | `DATABASE_URL` | `file:/data/dev.db` |
 | `SESSION_SECRET` | 32자 이상 랜덤 문자열 (아래 참고) |
+| `SITE_URL` | 공개 도메인 전체 URL (예: `https://youngeun-office-production-xxxx.up.railway.app`) — **태블릿 QR에 사용** |
 | `NODE_ENV` | `production` |
 
 `SESSION_SECRET` 생성 (PowerShell):
