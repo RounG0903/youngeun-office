@@ -5,6 +5,54 @@ export const CANCEL_DEADLINE_MINUTES = 30;
 export const CHECKIN_WINDOW_MINUTES_BEFORE = 30;
 export const CHECKIN_WINDOW_MINUTES_AFTER = 15;
 export const PENALTY_DAYS = 14;
+export const APP_TIMEZONE = "Asia/Seoul";
+
+type ZonedParts = {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+};
+
+function getZonedParts(date: Date, timeZone = APP_TIMEZONE): ZonedParts {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const read = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value ?? 0);
+
+  return {
+    year: read("year"),
+    month: read("month"),
+    day: read("day"),
+    hour: read("hour"),
+    minute: read("minute"),
+  };
+}
+
+export function getDateStringInTimezone(date: Date, timeZone = APP_TIMEZONE): string {
+  const { year, month, day } = getZonedParts(date, timeZone);
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+export function getMinutesInTimezone(date: Date, timeZone = APP_TIMEZONE): number {
+  const { hour, minute } = getZonedParts(date, timeZone);
+  return hour * 60 + minute;
+}
+
+function addDaysToDateString(date: string, days: number): string {
+  const anchor = combineDateAndTime(date, "12:00");
+  return getDateStringInTimezone(new Date(anchor.getTime() + days * 86_400_000));
+}
 
 export function generateTimeSlots(): string[] {
   const slots: string[] = [];
@@ -19,12 +67,12 @@ export function generateTimeSlots(): string[] {
 export function combineDateAndTime(date: string, time: string): Date {
   const [year, month, day] = date.split("-").map(Number);
   const [hour, minute] = time.split(":").map(Number);
-  return new Date(year, month - 1, day, hour, minute, 0, 0);
+  return new Date(Date.UTC(year, month - 1, day, hour - 9, minute, 0, 0));
 }
 
 export function isSlotInBusinessHours(start: Date, end: Date): boolean {
-  const startMinutes = start.getHours() * 60 + start.getMinutes();
-  const endMinutes = end.getHours() * 60 + end.getMinutes();
+  const startMinutes = getMinutesInTimezone(start);
+  const endMinutes = getMinutesInTimezone(end);
   const openMinutes = OPEN_HOUR * 60;
   const closeMinutes = CLOSE_HOUR * 60;
 
@@ -93,10 +141,7 @@ export function formatTimeRange(start: Date, end: Date): string {
 }
 
 export function getMinSelectableDate(now = new Date()): string {
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return getDateStringInTimezone(now);
 }
 
 export function filterPastTimeSlots(date: string, slots: string[], now = new Date()): string[] {
@@ -104,11 +149,8 @@ export function filterPastTimeSlots(date: string, slots: string[], now = new Dat
   if (date > today) return slots;
   if (date < today) return [];
 
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  return slots.filter((slot) => {
-    const [hour, minute] = slot.split(":").map(Number);
-    return hour * 60 + minute > currentMinutes;
-  });
+  const currentMinutes = getMinutesInTimezone(now);
+  return slots.filter((slot) => slotToMinutesValue(slot) > currentMinutes);
 }
 
 export function isPastTimeSlot(date: string, slot: string, now = new Date()): boolean {
@@ -116,10 +158,7 @@ export function isPastTimeSlot(date: string, slot: string, now = new Date()): bo
   if (date > today) return false;
   if (date < today) return true;
 
-  const [hour, minute] = slot.split(":").map(Number);
-  const slotMinutes = hour * 60 + minute;
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  return slotMinutes <= currentMinutes;
+  return slotToMinutesValue(slot) <= getMinutesInTimezone(now);
 }
 
 export function filterEndTimeSlots(startTime: string, slots: string[]): string[] {
@@ -166,9 +205,8 @@ export function getBookedSlots(
   const booked = new Set<string>();
 
   for (const reservation of reservations) {
-    const startMin =
-      reservation.startTime.getHours() * 60 + reservation.startTime.getMinutes();
-    const endMin = reservation.endTime.getHours() * 60 + reservation.endTime.getMinutes();
+    const startMin = getMinutesInTimezone(reservation.startTime);
+    const endMin = getMinutesInTimezone(reservation.endTime);
 
     for (const slot of slots) {
       const slotMin = slotToMinutesValue(slot);
@@ -190,9 +228,8 @@ export function doesRangeOverlapBooked(
   const rangeEnd = slotToMinutesValue(endTime);
 
   return reservations.some((reservation) => {
-    const bookedStart =
-      reservation.startTime.getHours() * 60 + reservation.startTime.getMinutes();
-    const bookedEnd = reservation.endTime.getHours() * 60 + reservation.endTime.getMinutes();
+    const bookedStart = getMinutesInTimezone(reservation.startTime);
+    const bookedEnd = getMinutesInTimezone(reservation.endTime);
     return bookedStart < rangeEnd && bookedEnd > rangeStart;
   });
 }
@@ -218,8 +255,8 @@ export function getAutoEndBeforeBooked(
 }
 
 export function getDayBounds(date: string): { dayStart: Date; dayEnd: Date } {
-  const [year, month, day] = date.split("-").map(Number);
-  const dayStart = new Date(year, month - 1, day, 0, 0, 0, 0);
-  const dayEnd = new Date(year, month - 1, day + 1, 0, 0, 0, 0);
-  return { dayStart, dayEnd };
+  return {
+    dayStart: combineDateAndTime(date, "00:00"),
+    dayEnd: combineDateAndTime(addDaysToDateString(date, 1), "00:00"),
+  };
 }
