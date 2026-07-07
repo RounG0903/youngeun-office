@@ -5,16 +5,22 @@ export const SERVER_ADMIN_USER_NUMBER = 999999;
 export async function assignUserNumbersToExistingUsers(
   prisma: PrismaClient,
 ): Promise<void> {
-  await prisma.user.updateMany({
-    where: { isServerAdmin: true },
-    data: { userNumber: SERVER_ADMIN_USER_NUMBER },
-  });
+  const primaryAdmin =
+    (await prisma.user.findUnique({ where: { name: "Youngeun Admin" } })) ??
+    (await prisma.user.findFirst({
+      where: { isServerAdmin: true },
+      orderBy: { createdAt: "asc" },
+    }));
+
+  if (primaryAdmin) {
+    await prisma.user.update({
+      where: { id: primaryAdmin.id },
+      data: { userNumber: SERVER_ADMIN_USER_NUMBER },
+    });
+  }
 
   const users = await prisma.user.findMany({
-    where: {
-      isServerAdmin: false,
-      userNumber: null,
-    },
+    where: { userNumber: null },
     orderBy: { createdAt: "asc" },
     select: { id: true },
   });
