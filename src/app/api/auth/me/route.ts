@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensurePenaltiesProcessed } from "@/lib/penalty";
 import { isUnderPenalty } from "@/lib/reservation";
-import { formatUserDisplayName } from "@/lib/user-number";
+import { formatUserDisplayName, migrateLegacyUserNumbersIfNeeded } from "@/lib/user-number";
 
 export async function GET() {
   const session = await getSession();
@@ -14,6 +14,8 @@ export async function GET() {
   if (session.role === "USER") {
     await ensurePenaltiesProcessed(session.id);
   }
+
+  await migrateLegacyUserNumbersIfNeeded();
 
   const user = await prisma.user.findUnique({
     where: { id: session.id },
