@@ -55,13 +55,14 @@ export function ThemeToggle() {
     >
       <span className="theme-toggle-label">화면 모드</span>
       <span className={`theme-toggle-track ${theme === "dark" ? "theme-toggle-track-dark" : ""}`}>
-        <span className="theme-toggle-icon theme-toggle-icon-sun">
-          <SunIcon />
+        <span className="theme-toggle-thumb" aria-hidden="true">
+          <span className="theme-toggle-face theme-toggle-face-sun">
+            <SunIcon />
+          </span>
+          <span className="theme-toggle-face theme-toggle-face-moon">
+            <MoonIcon />
+          </span>
         </span>
-        <span className="theme-toggle-icon theme-toggle-icon-moon">
-          <MoonIcon />
-        </span>
-        <span className="theme-toggle-knob" />
       </span>
     </button>
   );
