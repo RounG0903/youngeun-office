@@ -1,14 +1,22 @@
 import { useMemo } from "react";
 import {
   CLOSE_HOUR,
+  doesRangeOverlapBooked,
   filterPastTimeSlots,
   generateTimeSlots,
 } from "@/lib/reservation";
+
+type BookedReservation = {
+  startTime: string;
+  endTime: string;
+};
 
 type TimeRangePickerProps = {
   date: string;
   startTime: string;
   endTime: string;
+  bookedSlots?: string[];
+  bookedReservations?: BookedReservation[];
   onStartChange: (value: string) => void;
   onEndChange: (value: string) => void;
 };
@@ -24,6 +32,8 @@ export function TimeRangePicker({
   date,
   startTime,
   endTime,
+  bookedSlots = [],
+  bookedReservations = [],
   onStartChange,
   onEndChange,
 }: TimeRangePickerProps) {
@@ -35,12 +45,25 @@ export function TimeRangePicker({
     [allSlots, date],
   );
 
+  const bookedSlotSet = useMemo(() => new Set(bookedSlots), [bookedSlots]);
+
+  const parsedReservations = useMemo(
+    () =>
+      bookedReservations.map((reservation) => ({
+        startTime: new Date(reservation.startTime),
+        endTime: new Date(reservation.endTime),
+      })),
+    [bookedReservations],
+  );
+
   const startMinutes = startTime ? slotToMinutes(startTime) : null;
   const endMinutes = endTime ? slotToMinutes(endTime) : null;
 
   function isSlotDisabled(slot: string): boolean {
     const minutes = slotToMinutes(slot);
     const isClose = slot === CLOSE_TIME;
+
+    if (bookedSlotSet.has(slot)) return true;
 
     if (!startTime) {
       return isClose || !availableStartSlots.has(slot);
@@ -49,12 +72,16 @@ export function TimeRangePicker({
     const startMin = slotToMinutes(startTime);
 
     if (!endTime) {
-      if (minutes > startMin) return false;
+      if (minutes > startMin) {
+        return doesRangeOverlapBooked(startTime, slot, parsedReservations);
+      }
       return !availableStartSlots.has(slot);
     }
 
-    if (availableStartSlots.has(slot)) return false;
-    if (minutes > startMin) return false;
+    if (availableStartSlots.has(slot) && !bookedSlotSet.has(slot)) return false;
+    if (minutes > startMin) {
+      return doesRangeOverlapBooked(startTime, slot, parsedReservations);
+    }
     return true;
   }
 
@@ -62,7 +89,7 @@ export function TimeRangePicker({
     if (isSlotDisabled(slot)) return;
 
     const minutes = slotToMinutes(slot);
-    const canBeStart = availableStartSlots.has(slot);
+    const canBeStart = availableStartSlots.has(slot) && !bookedSlotSet.has(slot);
 
     if (!startTime) {
       if (canBeStart) onStartChange(slot);
@@ -91,6 +118,7 @@ export function TimeRangePicker({
   function getSlotState(slot: string) {
     const minutes = slotToMinutes(slot);
     return {
+      isBooked: bookedSlotSet.has(slot),
       isStart: slot === startTime,
       isEnd: slot === endTime,
       inRange:
@@ -116,7 +144,7 @@ export function TimeRangePicker({
       <div className="time-range-scroll" role="group" aria-label="예약 시간 선택">
         {timelineSlots.map((slot) => {
           const disabled = isSlotDisabled(slot);
-          const { isStart, isEnd, inRange } = getSlotState(slot);
+          const { isBooked, isStart, isEnd, inRange } = getSlotState(slot);
 
           return (
             <button
@@ -124,6 +152,7 @@ export function TimeRangePicker({
               type="button"
               className={[
                 "time-range-btn",
+                isBooked ? "time-range-btn-booked" : "",
                 isStart ? "time-range-btn-start" : "",
                 isEnd ? "time-range-btn-end" : "",
                 inRange ? "time-range-btn-in-range" : "",
@@ -133,6 +162,7 @@ export function TimeRangePicker({
               onClick={() => handleSlotClick(slot)}
               disabled={disabled}
               aria-pressed={isStart || isEnd}
+              title={isBooked ? "이미 예약된 시간입니다" : undefined}
             >
               {slot}
             </button>
@@ -142,6 +172,7 @@ export function TimeRangePicker({
 
       <p className="time-range-hint">
         하나의 타임라인에서 시작 시간을 클릭한 뒤 종료 시간을 클릭하세요 · 06:00~22:00
+        {bookedSlots.length > 0 ? " · 붉은색은 예약 불가" : ""}
       </p>
     </div>
   );

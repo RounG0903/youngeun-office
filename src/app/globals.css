@@ -304,6 +304,17 @@ textarea {
   color: #1e40af;
 }
 
+.time-range-btn-booked {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.time-range-btn-booked:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
 .time-range-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;

@@ -134,3 +134,53 @@ export function isUpcomingReservation(
 ): boolean {
   return status === "ACTIVE" && startTime.getTime() > now.getTime();
 }
+
+function slotToMinutesValue(slot: string): number {
+  const [hour, minute] = slot.split(":").map(Number);
+  return hour * 60 + minute;
+}
+
+export function getBookedSlots(
+  reservations: { startTime: Date; endTime: Date }[],
+  slots: string[] = generateTimeSlots(),
+): string[] {
+  const booked = new Set<string>();
+
+  for (const reservation of reservations) {
+    const startMin =
+      reservation.startTime.getHours() * 60 + reservation.startTime.getMinutes();
+    const endMin = reservation.endTime.getHours() * 60 + reservation.endTime.getMinutes();
+
+    for (const slot of slots) {
+      const slotMin = slotToMinutesValue(slot);
+      if (slotMin >= startMin && slotMin < endMin) {
+        booked.add(slot);
+      }
+    }
+  }
+
+  return [...booked].sort();
+}
+
+export function doesRangeOverlapBooked(
+  startTime: string,
+  endTime: string,
+  reservations: { startTime: Date; endTime: Date }[],
+): boolean {
+  const rangeStart = slotToMinutesValue(startTime);
+  const rangeEnd = slotToMinutesValue(endTime);
+
+  return reservations.some((reservation) => {
+    const bookedStart =
+      reservation.startTime.getHours() * 60 + reservation.startTime.getMinutes();
+    const bookedEnd = reservation.endTime.getHours() * 60 + reservation.endTime.getMinutes();
+    return bookedStart < rangeEnd && bookedEnd > rangeStart;
+  });
+}
+
+export function getDayBounds(date: string): { dayStart: Date; dayEnd: Date } {
+  const [year, month, day] = date.split("-").map(Number);
+  const dayStart = new Date(year, month - 1, day, 0, 0, 0, 0);
+  const dayEnd = new Date(year, month - 1, day + 1, 0, 0, 0, 0);
+  return { dayStart, dayEnd };
+}
