@@ -942,3 +942,212 @@ textarea {
     padding: 0.65rem 0.85rem;
   }
 }
+
+/* Swipe row */
+.swipe-row {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.swipe-row-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.swipe-row-action:disabled {
+  background: #f5a5ab;
+  cursor: not-allowed;
+}
+
+.swipe-row-content {
+  position: relative;
+  background: var(--card);
+  transition: transform 0.15s ease-out;
+  touch-action: pan-y;
+}
+
+.swipe-row-disabled .swipe-row-content {
+  touch-action: auto;
+}
+
+/* Confirm dialog */
+.confirm-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.confirm-dialog {
+  width: min(100%, 22rem);
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.confirm-dialog-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.confirm-dialog-message {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* User avatar */
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #fafafa;
+  color: var(--foreground);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-avatar-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8rem;
+}
+
+.user-avatar-md {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.95rem;
+}
+
+/* Calendar reservation item */
+.calendar-reservation-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.calendar-reservation-item.highlight-mine {
+  border-color: #c4e4ff;
+  background: var(--accent-surface);
+}
+
+.calendar-reservation-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.calendar-reservation-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.calendar-reservation-user {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.calendar-reservation-mine {
+  margin-left: 0.35rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Admin shell */
+.admin-shell {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.admin-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-nav-link {
+  flex-shrink: 0;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-nav-link:hover {
+  color: var(--foreground);
+  background: #f2f2f2;
+}
+
+.admin-nav-link-active {
+  color: var(--foreground);
+  background: #efefef;
+}
+
+.admin-content > .card {
+  margin-top: 0;
+}
+
+.admin-content h2 {
+  font-size: 1.1rem;
+}
+
+.admin-content .card > p.text-sm {
+  margin-top: 0.35rem;
+}

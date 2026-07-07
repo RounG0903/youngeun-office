@@ -51,6 +51,7 @@ export async function GET(request: Request) {
             reservation.user.userNumber != null
               ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
               : reservation.user.name,
+          isMine: false,
         }));
 
       return {

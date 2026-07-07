@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUserSession } from "@/lib/admin";
 import { getDayBounds } from "@/lib/reservation";
+import { formatUserDisplayName } from "@/lib/user-number";
 
 export async function GET(request: Request) {
   const auth = await requireUserSession();
@@ -25,14 +26,7 @@ export async function GET(request: Request) {
         startTime: { lt: dayEnd },
         endTime: { gt: dayStart },
       },
-      select: {
-        id: true,
-        title: true,
-        roomId: true,
-        userId: true,
-        startTime: true,
-        endTime: true,
-      },
+      include: { user: true },
       orderBy: { startTime: "asc" },
     }),
   ]);
@@ -50,11 +44,16 @@ export async function GET(request: Request) {
         .filter((reservation) => reservation.roomId === room.id)
         .map((reservation) => {
           const isMine = reservation.userId === session.id;
+          const userDisplayName =
+            reservation.user.userNumber != null
+              ? formatUserDisplayName(reservation.user.name, reservation.user.userNumber)
+              : reservation.user.name;
           return {
             id: reservation.id,
             timeLabel: `${timeFmt.format(reservation.startTime)} ~ ${timeFmt.format(reservation.endTime)}`,
             isMine,
             title: isMine ? reservation.title : null,
+            userDisplayName,
           };
         });
 
