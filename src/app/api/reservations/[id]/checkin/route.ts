@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyCheckinToken } from "@/lib/session";
 import { requireUserSession } from "@/lib/admin";
+import { CHECKIN_WINDOW_MINUTES_AFTER, CHECKIN_WINDOW_MINUTES_BEFORE } from "@/lib/reservation";
 import { isRoomCheckinEnabled } from "@/lib/settings";
 
 type RouteContext = {
@@ -53,12 +54,18 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   const now = new Date();
-  const windowStart = new Date(reservation.startTime.getTime() - 15 * 60 * 1000);
-  const windowEnd = new Date(reservation.endTime.getTime() + 15 * 60 * 1000);
+  const windowStart = new Date(
+    reservation.startTime.getTime() - CHECKIN_WINDOW_MINUTES_BEFORE * 60 * 1000,
+  );
+  const windowEnd = new Date(
+    reservation.endTime.getTime() + CHECKIN_WINDOW_MINUTES_AFTER * 60 * 1000,
+  );
 
   if (now < windowStart || now > windowEnd) {
     return NextResponse.json(
-      { error: "체크인 가능 시간이 아닙니다. (예약 15분 전 ~ 종료 15분 후)" },
+      {
+        error: `체크인 가능 시간이 아닙니다. (예약 ${CHECKIN_WINDOW_MINUTES_BEFORE}분 전 ~ 종료 ${CHECKIN_WINDOW_MINUTES_AFTER}분 후)`,
+      },
       { status: 400 },
     );
   }
