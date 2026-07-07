@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RoomIcon } from "@/components/RoomIcon";
 import { TimeRangePicker } from "@/components/TimeRangePicker";
 import {
   CLOSE_HOUR,
@@ -15,6 +16,8 @@ import {
 type Room = {
   id: string;
   name: string;
+  locationDescription: string;
+  color: string;
 };
 
 export default function NewReservationPage() {
@@ -133,6 +136,8 @@ export default function NewReservationPage() {
     router.refresh();
   }
 
+  const selectedRoom = rooms.find((room) => room.id === roomId);
+
   return (
     <div className="mx-auto max-w-3xl">
       <div className="card p-8">
@@ -167,6 +172,19 @@ export default function NewReservationPage() {
                 </option>
               ))}
             </select>
+            {selectedRoom ? (
+              <div className="mt-2 flex items-start gap-2 rounded-[10px] bg-slate-50 px-3 py-2 text-sm text-[var(--muted)]">
+                <RoomIcon color={selectedRoom.color} size={12} className="mt-1" />
+                <div>
+                  <p className="font-medium text-[var(--foreground)]">{selectedRoom.name}</p>
+                  {selectedRoom.locationDescription ? (
+                    <p className="mt-0.5">{selectedRoom.locationDescription}</p>
+                  ) : (
+                    <p className="mt-0.5">위치 설명이 등록되지 않았습니다.</p>
+                  )}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="field">

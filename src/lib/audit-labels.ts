@@ -4,6 +4,7 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   "user.clear_penalty": "패널티 해제",
   "user.toggle_checkin": "체크인 설정 변경",
   "room.create": "회의실 추가",
+  "room.update": "회의실 수정",
   "room.delete": "회의실 삭제",
   "reservation.create": "예약 추가",
   "reservation.cancel": "예약 취소",

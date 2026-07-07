@@ -1,15 +1,28 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { pickRoomColorByIndex } from "../src/lib/room";
 
 const prisma = new PrismaClient();
 
+const ROOM_SEEDS = [
+  { name: "회의실 A", locationDescription: "2층 복도 끝, 엘리베이터 오른쪽" },
+  { name: "회의실 B", locationDescription: "3층 중앙, 라운지 맞은편" },
+  { name: "세미나실", locationDescription: "1층 로비 안쪽, 안내 데스크 뒤" },
+];
+
 async function main() {
-  const rooms = ["회의실 A", "회의실 B", "세미나실"];
-  for (const name of rooms) {
+  for (const [index, room] of ROOM_SEEDS.entries()) {
     await prisma.meetingRoom.upsert({
-      where: { name },
-      update: {},
-      create: { name },
+      where: { name: room.name },
+      update: {
+        locationDescription: room.locationDescription,
+        color: pickRoomColorByIndex(index),
+      },
+      create: {
+        name: room.name,
+        locationDescription: room.locationDescription,
+        color: pickRoomColorByIndex(index),
+      },
     });
   }
 

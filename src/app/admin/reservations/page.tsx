@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { RoomIcon } from "@/components/RoomIcon";
 import { TimeRangePicker } from "@/components/TimeRangePicker";
 import {
   CLOSE_HOUR,
@@ -14,14 +15,14 @@ import {
 } from "@/lib/reservation";
 
 type User = { id: string; name: string };
-type Room = { id: string; name: string };
+type Room = { id: string; name: string; color: string };
 type Reservation = {
   id: string;
   title: string;
   startTime: string;
   endTime: string;
   status: string;
-  room: { name: string };
+  room: { name: string; color: string };
   user: { name: string };
 };
 
@@ -205,7 +206,7 @@ export default function AdminReservationsPage() {
             className="rounded-[10px] border border-[var(--border)] px-3 py-2 md:col-span-2"
             required
           />
-          <div className="md:col-span-2">
+          <div className="min-w-0 md:col-span-2">
             <TimeRangePicker
               date={date}
               startTime={startTime}
@@ -222,12 +223,55 @@ export default function AdminReservationsPage() {
         </form>
       </div>
 
-      <div className="card p-6">
+      <div className="card min-w-0 p-6">
         <h2 className="text-xl font-bold">예약 관리</h2>
         {message ? <div className="alert alert-success mt-4">{message}</div> : null}
         {error ? <div className="alert alert-error mt-4">{error}</div> : null}
 
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 space-y-3 md:hidden">
+          {reservations.map((reservation) => (
+            <div key={reservation.id} className="rounded-[10px] border border-[var(--border)] p-4">
+              <div className="font-semibold">{reservation.title}</div>
+              <div className="mt-2 space-y-1 text-sm text-[var(--muted)]">
+                <p>회원: {reservation.user.name}</p>
+                <p className="flex items-center gap-2">
+                  <RoomIcon color={reservation.room.color} size={10} />
+                  {reservation.room.name}
+                </p>
+                <p>
+                  {formatTimeRange(
+                    new Date(reservation.startTime),
+                    new Date(reservation.endTime),
+                  )}
+                </p>
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <span
+                  className={`badge ${
+                    reservation.status === "NO_SHOW"
+                      ? "badge-danger"
+                      : reservation.status === "COMPLETED"
+                        ? "badge-success"
+                        : "badge-muted"
+                  }`}
+                >
+                  {getReservationStatusLabel(reservation.status)}
+                </span>
+                {reservation.status === "ACTIVE" ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary px-2 py-1 text-xs text-[var(--danger)]"
+                    onClick={() => handleDelete(reservation.id, reservation.title)}
+                  >
+                    삭제
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[800px] text-left text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] text-[var(--muted)]">
@@ -244,7 +288,12 @@ export default function AdminReservationsPage() {
                 <tr key={reservation.id} className="border-b border-[var(--border)]">
                   <td className="py-3 pr-3">{reservation.title}</td>
                   <td className="py-3 pr-3">{reservation.user.name}</td>
-                  <td className="py-3 pr-3">{reservation.room.name}</td>
+                  <td className="py-3 pr-3">
+                    <span className="inline-flex items-center gap-2">
+                      <RoomIcon color={reservation.room.color} size={10} />
+                      {reservation.room.name}
+                    </span>
+                  </td>
                   <td className="py-3 pr-3">
                     {formatTimeRange(
                       new Date(reservation.startTime),

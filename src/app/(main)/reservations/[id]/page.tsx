@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { RoomIcon } from "@/components/RoomIcon";
 import { formatTimeRange, getReservationStatusLabel } from "@/lib/reservation";
 
 type ReservationDetail = {
   id: string;
   title: string;
   roomName: string;
+  roomLocationDescription: string;
+  roomColor: string;
   startTime: string;
   endTime: string;
   checkedInAt: string | null;
@@ -106,7 +109,17 @@ export default function ReservationDetailPage() {
             {getReservationStatusLabel(reservation.status)}
           </span>
         </div>
-        <p className="mt-2 text-[var(--muted)]">{reservation.roomName}</p>
+        <div className="mt-3 flex items-start gap-2">
+          <RoomIcon color={reservation.roomColor} size={14} className="mt-1.5" />
+          <div>
+            <p className="font-medium text-[var(--foreground)]">{reservation.roomName}</p>
+            {reservation.roomLocationDescription ? (
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                {reservation.roomLocationDescription}
+              </p>
+            ) : null}
+          </div>
+        </div>
         <p className="mt-3">
           {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
         </p>

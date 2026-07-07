@@ -40,6 +40,8 @@ export async function GET(_request: Request, context: RouteContext) {
       id: reservation.id,
       title: reservation.title,
       roomName: reservation.room.name,
+      roomLocationDescription: reservation.room.locationDescription,
+      roomColor: reservation.room.color,
       startTime: reservation.startTime,
       endTime: reservation.endTime,
       checkedInAt: reservation.checkedInAt,

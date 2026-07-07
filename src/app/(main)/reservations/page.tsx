@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { RoomIcon } from "@/components/RoomIcon";
 import { formatTimeRange } from "@/lib/reservation";
 
 type Reservation = {
@@ -11,7 +12,11 @@ type Reservation = {
   startTime: string;
   endTime: string;
   checkedInAt: string | null;
-  room: { name: string };
+  room: {
+    name: string;
+    locationDescription: string;
+    color: string;
+  };
 };
 
 export default function ReservationsPage() {
@@ -77,9 +82,17 @@ export default function ReservationsPage() {
               className="card block p-5 transition hover:border-blue-200"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <h2 className="font-semibold">{reservation.title}</h2>
-                  <p className="mt-1 text-sm text-[var(--muted)]">{reservation.room.name}</p>
+                  <p className="mt-1 flex items-center gap-2 text-sm text-[var(--muted)]">
+                    <RoomIcon color={reservation.room.color} size={10} />
+                    {reservation.room.name}
+                  </p>
+                  {reservation.room.locationDescription ? (
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      {reservation.room.locationDescription}
+                    </p>
+                  ) : null}
                   <p className="mt-2 text-sm">
                     {formatTimeRange(new Date(reservation.startTime), new Date(reservation.endTime))}
                   </p>

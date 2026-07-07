@@ -49,10 +49,12 @@ model PhoneVerification {
 }
 
 model MeetingRoom {
-  id           String        @id @default(cuid())
-  name         String        @unique
-  reservations Reservation[]
-  tabletUser   User?
+  id                  String        @id @default(cuid())
+  name                String        @unique
+  locationDescription String        @default("")
+  color               String        @default("#3B82F6")
+  reservations        Reservation[]
+  tabletUser          User?
 }
 
 enum ReservationStatus {

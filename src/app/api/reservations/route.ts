@@ -35,7 +35,14 @@ export async function GET() {
     orderBy: { name: "asc" },
   });
 
-  return NextResponse.json({ rooms });
+  return NextResponse.json({
+    rooms: rooms.map((room) => ({
+      id: room.id,
+      name: room.name,
+      locationDescription: room.locationDescription,
+      color: room.color,
+    })),
+  });
 }
 
 export async function POST(request: Request) {
