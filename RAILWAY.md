@@ -124,8 +124,16 @@ GitHub `main` 브랜치에 push하면 Railway가 **자동 재배포**합니다.
 ```powershell
 git add .
 git commit -m "Update feature"
-git push
+git push origin main
 ```
+
+또는 저장소 루트에서:
+
+```bash
+./scripts/deploy.sh
+```
+
+빌드 검증 후 `main`에 push하고 Railway 배포 완료까지 대기합니다.
 
 볼륨(`/data`)의 DB는 유지됩니다.
 
