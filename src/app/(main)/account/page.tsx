@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogoutButton } from "@/components/LogoutButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -189,6 +190,13 @@ export default function AccountPage() {
 
       {message ? <div className="alert alert-success mx-4 mb-4">{message}</div> : null}
       {error ? <div className="alert alert-error mx-4 mb-4">{error}</div> : null}
+
+      <div className="card mx-4 mb-4 p-5">
+        <h2 className="ig-section-title">화면</h2>
+        <div className="mt-4">
+          <ThemeToggle />
+        </div>
+      </div>
 
       <div className="card mx-4 mb-4 p-5">
         <h2 className="ig-section-title">닉네임</h2>

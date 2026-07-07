@@ -22,9 +22,8 @@ type Reservation = {
   room: { name: string; color?: string };
 };
 
-type PendingAction = {
+type PendingCancel = {
   id: string;
-  type: "cancel" | "delete";
   title: string;
 };
 
@@ -42,8 +41,9 @@ export default function HistoryPage() {
   const [filter, setFilter] = useState("ALL");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [pendingCancel, setPendingCancel] = useState<PendingCancel | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [resetKeys, setResetKeys] = useState<Record<string, number>>({});
 
   async function loadHistory() {
     const res = await fetch("/api/reservations/history");
@@ -66,59 +66,68 @@ export default function HistoryPage() {
 
   const filtered = reservations.filter((r) => filter === "ALL" || r.status === filter);
 
-  function getSwipeAction(reservation: Reservation) {
+  function canSwipeDismiss(reservation: Reservation) {
     if (reservation.status === "ACTIVE") {
-      const canCancel = canCancelReservation(new Date(reservation.startTime));
-      return {
-        label: "취소",
-        type: "cancel" as const,
-        disabled: !canCancel,
-      };
+      return canCancelReservation(new Date(reservation.startTime));
     }
-    return {
-      label: "삭제",
-      type: "delete" as const,
-      disabled: false,
-    };
+    return true;
   }
 
-  function requestAction(reservation: Reservation) {
-    const action = getSwipeAction(reservation);
-    if (action.disabled) return;
+  async function deleteReservation(id: string) {
+    setError("");
+    const res = await fetch(`/api/reservations/${id}`, { method: "DELETE" });
+    const data = await res.json();
 
-    if (action.type === "cancel") {
-      setPendingAction({
-        id: reservation.id,
-        type: "cancel",
-        title: reservation.title,
-      });
+    if (!res.ok) {
+      setError(data.error ?? "삭제에 실패했습니다.");
+      setResetKeys((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+      await loadHistory();
       return;
     }
 
-    setPendingAction({
-      id: reservation.id,
-      type: "delete",
-      title: reservation.title,
-    });
+    setReservations((prev) => prev.filter((item) => item.id !== id));
   }
 
-  async function executeAction() {
-    if (!pendingAction) return;
+  function handleDismiss(reservation: Reservation) {
+    if (reservation.status === "ACTIVE") {
+      setPendingCancel({ id: reservation.id, title: reservation.title });
+      return;
+    }
+
+    void deleteReservation(reservation.id);
+  }
+
+  async function confirmCancel() {
+    if (!pendingCancel) return;
 
     setActionLoading(true);
     setError("");
 
-    const res = await fetch(`/api/reservations/${pendingAction.id}`, { method: "DELETE" });
+    const res = await fetch(`/api/reservations/${pendingCancel.id}`, { method: "DELETE" });
     const data = await res.json();
     setActionLoading(false);
-    setPendingAction(null);
 
     if (!res.ok) {
-      setError(data.error ?? "처리에 실패했습니다.");
+      setError(data.error ?? "예약 취소에 실패했습니다.");
+      setResetKeys((prev) => ({
+        ...prev,
+        [pendingCancel.id]: (prev[pendingCancel.id] ?? 0) + 1,
+      }));
+      setPendingCancel(null);
       return;
     }
 
-    await loadHistory();
+    setReservations((prev) => prev.filter((item) => item.id !== pendingCancel.id));
+    setPendingCancel(null);
+  }
+
+  function cancelConfirmDialog() {
+    if (!pendingCancel) return;
+    setResetKeys((prev) => ({
+      ...prev,
+      [pendingCancel.id]: (prev[pendingCancel.id] ?? 0) + 1,
+    }));
+    setPendingCancel(null);
   }
 
   if (loading) return <p className="px-4 py-8 text-center text-[var(--muted)]">불러오는 중...</p>;
@@ -127,7 +136,7 @@ export default function HistoryPage() {
     <div>
       <div className="px-4 pb-2 pt-3">
         <h1 className="text-xl font-semibold">히스토리</h1>
-        <p className="mt-1 text-sm text-[var(--muted)]">왼쪽으로 밀어 예약 취소 또는 내역 삭제</p>
+        <p className="mt-1 text-sm text-[var(--muted)]">왼쪽으로 밀어 내역 삭제 · 예정 예약은 취소 확인</p>
       </div>
 
       <div className="ig-pill-scroll px-4">
@@ -149,68 +158,50 @@ export default function HistoryPage() {
         <div className="ig-empty-state">기록이 없습니다.</div>
       ) : (
         <div className="mt-2">
-          {filtered.map((reservation) => {
-            const swipeAction = getSwipeAction(reservation);
-            return (
-              <SwipeableRow
-                key={reservation.id}
-                actionLabel={swipeAction.label}
-                onAction={() => requestAction(reservation)}
-                disabled={swipeAction.disabled}
-              >
-                <IgPostCard
-                  href={`/reservations/${reservation.id}`}
-                  title={reservation.title}
-                  subtitle={reservation.room.name}
-                  meta={formatTimeRange(
-                    new Date(reservation.startTime),
-                    new Date(reservation.endTime),
-                  )}
-                  roomColor={reservation.room.color ?? "#3B82F6"}
-                  badge={
-                    <span
-                      className={`badge ${
-                        reservation.status === "NO_SHOW"
-                          ? "badge-danger"
-                          : reservation.status === "COMPLETED"
-                            ? "badge-success"
-                            : "badge-muted"
-                      }`}
-                    >
-                      {getReservationStatusLabel(reservation.status)}
-                    </span>
-                  }
-                />
-              </SwipeableRow>
-            );
-          })}
+          {filtered.map((reservation) => (
+            <SwipeableRow
+              key={reservation.id}
+              resetKey={resetKeys[reservation.id] ?? 0}
+              onDismiss={() => handleDismiss(reservation)}
+              disabled={!canSwipeDismiss(reservation)}
+            >
+              <IgPostCard
+                href={`/reservations/${reservation.id}`}
+                title={reservation.title}
+                subtitle={reservation.room.name}
+                meta={formatTimeRange(
+                  new Date(reservation.startTime),
+                  new Date(reservation.endTime),
+                )}
+                roomColor={reservation.room.color ?? "#3B82F6"}
+                badge={
+                  <span
+                    className={`badge ${
+                      reservation.status === "NO_SHOW"
+                        ? "badge-danger"
+                        : reservation.status === "COMPLETED"
+                          ? "badge-success"
+                          : "badge-muted"
+                    }`}
+                  >
+                    {getReservationStatusLabel(reservation.status)}
+                  </span>
+                }
+              />
+            </SwipeableRow>
+          ))}
         </div>
       )}
 
       <ConfirmDialog
-        open={pendingAction?.type === "cancel"}
+        open={pendingCancel !== null}
         title="예약 취소"
         message={
-          pendingAction
-            ? `'${pendingAction.title}' 예약을 취소하시겠습니까?`
-            : ""
+          pendingCancel ? `'${pendingCancel.title}' 예약을 취소하시겠습니까?` : ""
         }
         confirmLabel={actionLoading ? "처리 중..." : "예약 취소"}
-        onConfirm={executeAction}
-        onCancel={() => setPendingAction(null)}
-      />
-
-      <ConfirmDialog
-        open={pendingAction?.type === "delete"}
-        title="내역 삭제"
-        message={
-          pendingAction
-            ? `'${pendingAction.title}' 내역을 삭제하시겠습니까?`
-            : ""
-        }
-        confirmLabel={actionLoading ? "처리 중..." : "삭제"}
-        onConfirm={executeAction}
-        onCancel={() => setPendingAction(null)}
+        onConfirm={confirmCancel}
+        onCancel={cancelConfirmDialog}
       />
     </div>
   );

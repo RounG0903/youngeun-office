@@ -1,64 +1,74 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SwipeableRowProps = {
   children: React.ReactNode;
-  actionLabel: string;
-  onAction: () => void;
+  onDismiss: () => void;
   disabled?: boolean;
+  resetKey?: number;
 };
 
-const ACTION_WIDTH = 88;
-const OPEN_THRESHOLD = 44;
+const DISMISS_THRESHOLD = 96;
 const DRAG_THRESHOLD = 6;
 
 export function SwipeableRow({
   children,
-  actionLabel,
-  onAction,
+  onDismiss,
   disabled = false,
+  resetKey = 0,
 }: SwipeableRowProps) {
   const [offset, setOffset] = useState(0);
+  const [dismissing, setDismissing] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
-  const startOffset = useRef(0);
   const dragging = useRef(false);
   const moved = useRef(false);
 
-  function clampOffset(value: number) {
-    return Math.max(0, Math.min(ACTION_WIDTH, value));
+  useEffect(() => {
+    setOffset(0);
+    setDismissing(false);
+  }, [resetKey]);
+
+  function getMaxOffset() {
+    return rowRef.current?.offsetWidth ?? 320;
   }
 
   function handlePointerDown(clientX: number) {
-    if (disabled) return;
+    if (disabled || dismissing) return;
     dragging.current = true;
     moved.current = false;
     startX.current = clientX;
-    startOffset.current = offset;
   }
 
   function handlePointerMove(clientX: number) {
-    if (!dragging.current || disabled) return;
+    if (!dragging.current || disabled || dismissing) return;
     const delta = startX.current - clientX;
     if (Math.abs(delta) > DRAG_THRESHOLD) {
       moved.current = true;
     }
-    setOffset(clampOffset(startOffset.current + delta));
+    const next = Math.max(0, Math.min(getMaxOffset(), delta));
+    setOffset(next);
+  }
+
+  function finishDismiss() {
+    setDismissing(true);
+    setOffset(getMaxOffset());
+    window.setTimeout(() => {
+      onDismiss();
+    }, 180);
   }
 
   function handlePointerEnd() {
     if (!dragging.current) return;
     dragging.current = false;
-    setOffset(offset >= OPEN_THRESHOLD ? ACTION_WIDTH : 0);
-  }
 
-  function close() {
+    if (offset >= DISMISS_THRESHOLD) {
+      finishDismiss();
+      return;
+    }
+
     setOffset(0);
-  }
-
-  function handleAction() {
-    onAction();
-    close();
   }
 
   function blockClickIfDragged(event: React.MouseEvent) {
@@ -69,20 +79,28 @@ export function SwipeableRow({
     }
   }
 
+  const progress = Math.min(1, offset / DISMISS_THRESHOLD);
+
   return (
-    <div className={`swipe-row ${disabled ? "swipe-row-disabled" : ""}`}>
-      <button
-        type="button"
-        className="swipe-row-action"
-        onClick={handleAction}
-        disabled={disabled}
-        aria-label={actionLabel}
+    <div
+      ref={rowRef}
+      className={`swipe-row ${disabled ? "swipe-row-disabled" : ""} ${
+        dismissing ? "swipe-row-dismissing" : ""
+      }`}
+    >
+      <div
+        className="swipe-row-hint"
+        style={{ opacity: progress }}
+        aria-hidden="true"
       >
-        {actionLabel}
-      </button>
+        삭제
+      </div>
       <div
         className="swipe-row-content"
-        style={{ transform: `translateX(-${offset}px)` }}
+        style={{
+          transform: `translateX(-${offset}px)`,
+          opacity: 1 - progress * 0.35,
+        }}
         onTouchStart={(e) => handlePointerDown(e.touches[0].clientX)}
         onTouchMove={(e) => handlePointerMove(e.touches[0].clientX)}
         onTouchEnd={handlePointerEnd}
