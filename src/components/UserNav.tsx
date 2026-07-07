@@ -48,7 +48,7 @@ export function UserNav({ userName }: UserNavProps) {
             <Link
               key={link.href}
               href={link.href}
-              className={`block px-4 py-2.5 text-sm hover:bg-slate-50 ${
+              className={`block px-4 py-2.5 text-sm hover:bg-[var(--accent-light)] ${
                 pathname === link.href || pathname.startsWith(`${link.href}/`)
                   ? "font-semibold text-[var(--primary)]"
                   : ""
@@ -76,10 +76,10 @@ export function UserTopNav() {
         <Link
           key={link.href}
           href={link.href}
-          className={`rounded-[10px] px-3 py-2 whitespace-nowrap ${
+          className={`rounded-lg px-3 py-2 whitespace-nowrap ${
             pathname === link.href || pathname.startsWith(`${link.href}/`)
-              ? "bg-blue-50 font-semibold text-[var(--primary)]"
-              : "text-[var(--muted)] hover:bg-slate-50 hover:text-[var(--foreground)]"
+              ? "nav-active"
+              : "text-[var(--muted)] hover:bg-[var(--accent-light)] hover:text-[var(--foreground)]"
           }`}
         >
           {link.label}

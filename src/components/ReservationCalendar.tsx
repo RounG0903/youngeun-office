@@ -110,7 +110,7 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
               type="button"
               className={`rounded-[10px] border px-3 py-2 text-left text-sm ${
                 weekDate === date
-                  ? "border-[var(--primary)] bg-blue-50 text-[var(--primary)]"
+                  ? "border-[var(--primary)] bg-[var(--accent-surface)] text-[var(--primary)]"
                   : "border-[var(--border)]"
               }`}
               onClick={() => setDate(weekDate)}
@@ -165,7 +165,7 @@ export function ReservationCalendar({ apiPath, showBooker = false }: Reservation
                     <li key={reservation.id}>
                       <details
                         className={`rounded-[10px] border px-3 py-2 ${
-                          reservation.isMine ? "border-blue-200 bg-blue-50/50" : "border-[var(--border)]"
+                          reservation.isMine ? "highlight-mine" : "border-[var(--border)]"
                         }`}
                       >
                         <summary className="cursor-pointer text-sm font-medium">

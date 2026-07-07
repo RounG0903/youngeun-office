@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #fafafa;
+  --foreground: #262626;
   --card: #ffffff;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --danger: #dc2626;
-  --success: #16a34a;
+  --primary: #0095f6;
+  --primary-hover: #1877f2;
+  --muted: #8e8e8e;
+  --border: #dbdbdb;
+  --accent-light: #fafafa;
+  --accent-surface: #e8f5ff;
+  --accent-border: #c4e4ff;
+  --danger: #ed4956;
+  --success: #58c322;
+  --ig-gradient: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
 }
 
 * {
@@ -20,14 +31,17 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: clip;
-  background: linear-gradient(180deg, #eff6ff 0%, var(--background) 240px);
+  background: var(--background);
   color: var(--foreground);
   font-family:
-    "Pretendard",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
     "Apple SD Gothic Neo",
     "Noto Sans KR",
-    system-ui,
-    -apple-system,
     sans-serif;
 }
 
@@ -43,11 +57,43 @@ textarea {
   font: inherit;
 }
 
+.ig-gradient-text {
+  background: var(--ig-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ig-gradient-ring {
+  background: var(--ig-gradient);
+}
+
+.ig-gradient-border {
+  position: relative;
+  background: var(--card);
+  border: none;
+}
+
+.ig-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--ig-gradient);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+  border-radius: 8px;
+  box-shadow: none;
 }
 
 .btn {
@@ -55,7 +101,7 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.7rem 1rem;
   font-weight: 600;
@@ -64,7 +110,7 @@ textarea {
   text-align: center;
   white-space: normal;
   word-break: keep-all;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 }
 
 .btn:disabled {
@@ -88,7 +134,7 @@ textarea {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #f1f5f9;
+  background: var(--accent-light);
 }
 
 .btn-danger {
@@ -97,7 +143,7 @@ textarea {
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #b91c1c;
+  background: #d73645;
 }
 
 .field {
@@ -115,9 +161,9 @@ textarea {
 .field select,
 .field textarea {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0.75rem 0.85rem;
-  background: white;
+  background: var(--accent-light);
   width: 100%;
   min-width: 0;
 }
@@ -158,26 +204,27 @@ textarea {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  outline: 2px solid #bfdbfe;
-  border-color: #93c5fd;
+  outline: none;
+  border-color: var(--primary);
+  background: white;
 }
 
 .alert {
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0.85rem 1rem;
   font-size: 0.95rem;
 }
 
 .alert-error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #c13544;
+  border: 1px solid #ffd4d8;
 }
 
 .alert-success {
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: #f3fff0;
+  color: #3d8b2f;
+  border: 1px solid #c8f0b8;
 }
 
 .badge {
@@ -190,18 +237,18 @@ textarea {
 }
 
 .badge-success {
-  background: #dcfce7;
-  color: #166534;
+  background: #e8f9e0;
+  color: #3d8b2f;
 }
 
 .badge-muted {
-  background: #f1f5f9;
-  color: #475569;
+  background: #efefef;
+  color: #737373;
 }
 
 .badge-danger {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #ffe8ea;
+  color: #c13544;
 }
 
 .time-slot-grid {
@@ -222,8 +269,8 @@ textarea {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-radius: 12px;
-  background: #f8fafc;
+  border-radius: 8px;
+  background: var(--accent-light);
   border: 1px solid var(--border);
 }
 
@@ -251,8 +298,8 @@ textarea {
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #f8fafc;
+  border-radius: 8px;
+  background: var(--accent-light);
 }
 
 .time-range-scroll::-webkit-scrollbar {
@@ -260,7 +307,7 @@ textarea {
 }
 
 .time-range-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #c7c7c7;
   border-radius: 999px;
 }
 
@@ -268,7 +315,7 @@ textarea {
   flex: 0 0 auto;
   min-width: 3.4rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: white;
   color: var(--foreground);
   padding: 0.5rem 0.65rem;
@@ -280,8 +327,8 @@ textarea {
 }
 
 .time-range-btn:hover:not(:disabled) {
-  border-color: #93c5fd;
-  background: #eff6ff;
+  border-color: var(--primary);
+  background: var(--accent-surface);
 }
 
 .time-range-btn-selected,
@@ -299,23 +346,23 @@ textarea {
 }
 
 .time-range-btn-in-range {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  color: #1e40af;
+  background: var(--accent-surface);
+  border-color: var(--accent-border);
+  color: var(--primary-hover);
 }
 
 .time-range-btn-past {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #9ca3af;
+  background: #efefef;
+  border-color: #dbdbdb;
+  color: #a8a8a8;
 }
 
 .time-range-btn-past.time-range-btn-start,
 .time-range-btn-past.time-range-btn-end,
 .time-range-btn-past.time-range-btn-in-range {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #9ca3af;
+  background: #efefef;
+  border-color: #dbdbdb;
+  color: #a8a8a8;
 }
 
 .time-range-btn-past:disabled {
@@ -324,9 +371,9 @@ textarea {
 }
 
 .time-range-btn-booked {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  color: #dc2626;
+  background: #fff5f5;
+  border-color: #ffb8c0;
+  color: var(--danger);
 }
 
 .time-range-btn-booked:disabled {
@@ -354,7 +401,7 @@ textarea {
 
 .time-slot-btn {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: white;
   color: var(--foreground);
   padding: 0.55rem 0.35rem;
@@ -365,8 +412,8 @@ textarea {
 }
 
 .time-slot-btn:hover:not(:disabled) {
-  border-color: #93c5fd;
-  background: #eff6ff;
+  border-color: var(--primary);
+  background: var(--accent-surface);
 }
 
 .time-slot-btn-selected {
@@ -388,12 +435,27 @@ textarea {
 .time-slot-empty {
   margin: 0;
   padding: 0.75rem;
-  border-radius: 10px;
-  background: #f8fafc;
+  border-radius: 8px;
+  background: var(--accent-light);
   border: 1px dashed var(--border);
   color: var(--muted);
   font-size: 0.9rem;
   text-align: center;
+}
+
+.nav-active {
+  background: var(--accent-surface);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.card-hover:hover {
+  border-color: #c7c7c7;
+}
+
+.highlight-mine {
+  border-color: var(--accent-border);
+  background: var(--accent-surface);
 }
 
 @media (max-width: 639px) {

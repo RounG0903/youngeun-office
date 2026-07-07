@@ -173,7 +173,7 @@ export default function NewReservationPage() {
               ))}
             </select>
             {selectedRoom ? (
-              <div className="mt-2 flex items-start gap-2 rounded-[10px] bg-slate-50 px-3 py-2 text-sm text-[var(--muted)]">
+              <div className="mt-2 flex items-start gap-2 rounded-lg bg-[var(--accent-light)] px-3 py-2 text-sm text-[var(--muted)]">
                 <RoomIcon color={selectedRoom.color} size={12} className="mt-1" />
                 <div>
                   <p className="font-medium text-[var(--foreground)]">{selectedRoom.name}</p>

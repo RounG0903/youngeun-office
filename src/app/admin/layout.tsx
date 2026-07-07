@@ -44,7 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-[var(--primary)]">관리자</p>
+            <p className="text-sm font-semibold ig-gradient-text">관리자</p>
             <h1 className="text-2xl font-bold">Youngeun Office 관리</h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
               {displayName} · {getRoleLabel(session.role)}
@@ -56,7 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         <nav className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} className="card p-4 transition hover:border-blue-200">
+            <Link key={link.href} href={link.href} className="card card-hover p-4 transition">
               <div className="font-semibold">{link.label}</div>
               <div className="mt-1 text-sm text-[var(--muted)]">{link.desc}</div>
             </Link>

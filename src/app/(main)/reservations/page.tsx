@@ -79,7 +79,7 @@ export default function ReservationsPage() {
             <Link
               key={reservation.id}
               href={`/reservations/${reservation.id}`}
-              className="card block p-5 transition hover:border-blue-200"
+              className="card card-hover block p-5 transition"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">

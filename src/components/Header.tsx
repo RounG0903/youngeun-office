@@ -7,10 +7,10 @@ export async function Header() {
 
   if (!session || session.role !== "USER") {
     return (
-      <header className="border-b border-[var(--border)] bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:py-4">
+      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:py-3.5">
           <Link href="/" className="min-w-0 flex flex-col">
-            <span className="truncate text-base font-bold text-[var(--primary)] sm:text-lg">
+            <span className="ig-gradient-text truncate text-base font-bold sm:text-lg">
               Youngeun Office
             </span>
             <span className="truncate text-xs text-[var(--muted)] sm:text-sm">교육관 회의실 예약</span>
@@ -42,16 +42,16 @@ export async function Header() {
       : session.name;
 
   return (
-    <header className="border-b border-[var(--border)] bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white">
       {isUnderPenalty(penaltyUntil) ? (
-        <div className="bg-red-50 px-4 py-2 text-center text-sm text-red-800">
+        <div className="bg-[#fff5f5] px-4 py-2 text-center text-sm text-[var(--danger)]">
           패널티 기간 중입니다. {formatDateTime(penaltyUntil!)}까지 예약할 수 없습니다.
         </div>
       ) : null}
 
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:py-4">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:py-3.5">
         <Link href="/reservations" className="min-w-0 shrink-0 flex flex-col">
-          <span className="truncate text-base font-bold text-[var(--primary)] sm:text-lg">
+          <span className="ig-gradient-text truncate text-base font-bold sm:text-lg">
             Youngeun Office
           </span>
           <span className="truncate text-xs text-[var(--muted)] sm:text-sm">교육관 회의실 예약</span>

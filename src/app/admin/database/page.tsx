@@ -151,7 +151,7 @@ export default function AdminDatabasePage() {
                     <tr
                       key={id}
                       className={`cursor-pointer border-b border-[var(--border)] ${
-                        selectedId === id ? "bg-blue-50" : ""
+                        selectedId === id ? "bg-[var(--accent-surface)]" : ""
                       }`}
                       onClick={() => selectRecord(record)}
                     >

@@ -33,7 +33,10 @@
 .tablet-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #93c5fd;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .tablet-subtitle {
@@ -71,8 +74,8 @@
 }
 
 .tablet-btn-primary {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #0095f6;
+  border-color: #0095f6;
 }
 
 .tablet-select {
